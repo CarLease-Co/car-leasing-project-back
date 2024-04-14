@@ -4,12 +4,11 @@ import com.carlease.project.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements IUserService{
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -17,7 +16,7 @@ public class UserServiceImpl implements IUserService{
     }
     @Override
     public List<User> findAll() {
-        return userRepository.findAll();
+        return (List<User>) userRepository.findAll();
     }
 
     @Override

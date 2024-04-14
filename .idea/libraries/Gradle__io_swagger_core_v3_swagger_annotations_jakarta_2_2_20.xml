@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: io.swagger.core.v3:swagger-annotations-jakarta:2.2.20" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="io.swagger.core.v3" artifactId="swagger-annotations-jakarta" version="2.2.20" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.swagger.core.v3/swagger-annotations-jakarta/2.2.20/2a443bf02ad9df9b1d22e26435f7091fc622e60d/swagger-annotations-jakarta-2.2.20.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
