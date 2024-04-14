@@ -1,7 +1,10 @@
 package com.carlease.project.form;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 
+@Data
 public class Form {
 
     private BigDecimal income;

@@ -1,7 +1,9 @@
 package com.carlease.project.form;
 
 import com.carlease.project.form.exceptions.FormValidationException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class FormServiceImpl implements IFormService {
 
     @Override
