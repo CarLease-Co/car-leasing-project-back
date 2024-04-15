@@ -1,4 +1,9 @@
 package com.carlease.project.application;
 
-public interface ApplicationRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ApplicationRepository extends JpaRepository<Application, Integer> {
+    List<Application> findAllByApplicantId(int applicantId);
 }
