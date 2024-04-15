@@ -4,6 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ApplicationRepository extends JpaRepository<Application, Integer> {
-    List<Application> findAllByApplicantId(int applicantId);
+public interface ApplicationRepository extends JpaRepository<Application, Long> {
 }

@@ -16,7 +16,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
     @NotBlank
-    private String userName;
+    private String name;
+    @NotBlank
+    private String surname;
     @NotBlank
     private Role role;
 

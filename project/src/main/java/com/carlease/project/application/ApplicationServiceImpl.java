@@ -14,7 +14,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<Application> findAllApplicationByApplicantId(int applicantId) {
-        return applicationRepository.findAllByApplicantId(applicantId);
+    public List<Application> findAll() {
+        return applicationRepository.findAll();
     }
+
+    @Override
+    public Application findById(long id) {
+        return applicationRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public Application create(Application application) {
+        return applicationRepository.save(application);
+    }
+
+
 }

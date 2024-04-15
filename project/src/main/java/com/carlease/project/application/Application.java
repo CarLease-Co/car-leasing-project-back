@@ -1,5 +1,5 @@
 package com.carlease.project.application;
-
+import com.carlease.project.user.User;
 import com.carlease.project.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -20,11 +20,11 @@ public class Application {
     @Column(name = "application_id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int applicationId;
+    private long applicationId;
 
-    @Column(name = "applicant_id")
-    @NotNull
-    private int applicantId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "monthly_income")
     @NotNull
