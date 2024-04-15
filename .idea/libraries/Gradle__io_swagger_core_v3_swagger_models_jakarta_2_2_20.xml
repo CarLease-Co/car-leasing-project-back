@@ -5,8 +5,6 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.swagger.core.v3/swagger-models-jakarta/2.2.20/238ef00ce61ef6dcf4a7ec4f005e97d14ece4b6a/swagger-models-jakarta-2.2.20.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.swagger.core.v3/swagger-models-jakarta/2.2.20/da829f150d982ea6a2a7b4c8b8409d2c042c62b9/swagger-models-jakarta-2.2.20-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
