@@ -1,4 +1,6 @@
 package com.carlease.project.application;
+
+import com.carlease.project.car.Car;
 import com.carlease.project.user.User;
 import com.carlease.project.enums.ApplicationStatus;
 import jakarta.persistence.*;
@@ -12,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name="applications")
+@Table(name = "applications")
 @Data
 public class Application {
 
@@ -34,19 +36,9 @@ public class Application {
     @NotNull
     private BigDecimal financialObligations;
 
-    @Column(name = "car_id")
-    @NotNull
-    private int carId;
-
-    @Column(name = "loan_amount")
-    @NotNull
-    private BigDecimal loanAmount;
-
-    @Column(name = "loan_duration")
-    @NotNull
-    @Min(1)
-    @Max(120)
-    private int loanDurationInMonths;
+    @ManyToOne
+    @JoinColumn(name = "car_id")
+    private Car car;
 
     @Column(name = "free_text_explanation")
     private String textExplanation;
@@ -67,6 +59,4 @@ public class Application {
     @Column(name = "end_date")
     @Temporal(TemporalType.DATE)
     private Date endDate;
-
-
 }
