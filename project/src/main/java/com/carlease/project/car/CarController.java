@@ -23,13 +23,13 @@ public class CarController {
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<Car>> getAllCars() {
+    ResponseEntity<List<Car>> getCars() {
         List<Car> list = carServiceImpl.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Car> getCarById(@PathVariable("id") long id) {
+    ResponseEntity<Car> getCar(@PathVariable("id") long id) {
 
         Car car = carServiceImpl.findById(id);
         return new ResponseEntity<>(car, HttpStatus.OK);

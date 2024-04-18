@@ -25,8 +25,7 @@ public class Car {
     private String make;
     @NotBlank
     private String model;
-    @NotBlank
-    private int manufactureDate;
+
     private BigDecimal priceFrom;
     private BigDecimal priceTo;
 

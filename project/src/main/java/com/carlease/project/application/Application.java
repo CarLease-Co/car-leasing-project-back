@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -39,6 +40,8 @@ public class Application {
     @ManyToOne
     @JoinColumn(name = "car_id")
     private Car car;
+    @NotNull
+    private int manufactureDate;
 
     @Column(name = "free_text_explanation")
     private String textExplanation;
@@ -54,9 +57,9 @@ public class Application {
 
     @Column(name = "start_date")
     @Temporal(TemporalType.DATE)
-    private Date startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
     @Temporal(TemporalType.DATE)
-    private Date endDate;
+    private LocalDate endDate;
 }
