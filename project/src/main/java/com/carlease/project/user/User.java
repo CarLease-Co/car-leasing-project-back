@@ -18,6 +18,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @NotBlank
+    private String username;
+    @NotBlank
+    private String password;
+    @NotBlank
+    private String email;
+    @NotBlank
     private String name;
     @NotBlank
     private String surname;
