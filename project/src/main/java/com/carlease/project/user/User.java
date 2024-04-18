@@ -1,6 +1,7 @@
 package com.carlease.project.user;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class User {
     @NotBlank
     private String password;
     @NotBlank
+    @Email
     private String email;
     @NotBlank
     private String name;
