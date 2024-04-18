@@ -20,10 +20,10 @@ import java.util.Date;
 public class Application {
 
 
-    @Column(name = "application_id")
+    @Column(name = "id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long applicationId;
+    private long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

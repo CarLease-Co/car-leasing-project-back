@@ -18,9 +18,9 @@ import java.util.List;
 @Table(name = "cars")
 public class Car {
     @Id
-    @Column(name = "car_id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long carId;
+    private long id;
     @NotBlank
     private String make;
     @NotBlank
