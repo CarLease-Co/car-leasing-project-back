@@ -1,5 +1,6 @@
 package com.carlease.project.user;
 
+import com.carlease.project.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -13,8 +14,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
+    private long id;
     @NotBlank
     private String username;
     @NotBlank
@@ -26,6 +28,6 @@ public class User {
     @NotBlank
     private String surname;
     @NotBlank
-    private Role role;
+    private UserRole role;
 
 }

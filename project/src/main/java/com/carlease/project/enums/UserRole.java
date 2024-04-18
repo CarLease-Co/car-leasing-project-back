@@ -1,6 +1,6 @@
-package com.carlease.project.user;
+package com.carlease.project.enums;
 
-public enum Role {
+public enum UserRole {
     APPLICANT,
     REVIEWER,
     APPROVER,
