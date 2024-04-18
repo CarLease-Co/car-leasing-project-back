@@ -1,14 +1,9 @@
 package com.carlease.project.car;
 
-import com.carlease.project.application.Application;
-import com.carlease.project.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,4 +30,10 @@ public class CarController {
         return new ResponseEntity<>(car, HttpStatus.OK);
     }
 
+    @GetMapping("/{make}/models")
+    @ResponseBody
+    ResponseEntity<List<String>> getModels(@PathVariable("make") String make){
+        List <String> models = carServiceImpl.findModels(make);
+        return new ResponseEntity<>(models, HttpStatus.OK);
+    }
 }
