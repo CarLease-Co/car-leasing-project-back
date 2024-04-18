@@ -6,5 +6,5 @@ import java.util.List;
 public interface ICarService {
     List<Car> findAll();
     Car findById(long id);
-
+    List<String> findModels(String make);
 }
