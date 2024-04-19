@@ -1,5 +1,6 @@
 package com.carlease.project.user;
 
+import com.carlease.project.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,5 @@ public class UserSession {
 
     @Column(name = "role")
     @NotNull
-    private Role role;
+    private UserRole role;
 }
