@@ -1,20 +1,18 @@
 package com.carlease.project.application;
 
-import com.carlease.project.car.Car;
-import com.carlease.project.car.CarDto;
-import com.carlease.project.enums.ApplicationStatus;
-import com.carlease.project.user.User;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class ApplicationDto {
+@Data
+public class ApplicationFormDto {
     private long userId;
     private BigDecimal monthlyIncome;
     private BigDecimal financialObligations;
-    private CarDto carDto;
+    private String carMake;
+    private String carModel;
     private int manufactureDate;
     private String textExplanation;
     private int loanDuration;

@@ -36,8 +36,8 @@ public class ApplicationController {
     }
 
     @PostMapping
-    ResponseEntity<Application> createApplication(@RequestBody Application application) {
-        Application newApplication = applicationService.create(application);
+    ResponseEntity<Application> createApplication(@RequestBody ApplicationFormDto applicationFormDto) {
+        Application newApplication = applicationService.create(applicationFormDto);
         return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
     }
 }
