@@ -2,6 +2,7 @@ package com.carlease.project.application;
 
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
+import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,20 +44,24 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Application create(ApplicationFormDto applicationFormDto) {
 
+        Application application = applicationMapper.applicationFormDtoToApplication(applicationFormDto);
+
         String carMake = applicationFormDto.getCarMake();
         String carModel = applicationFormDto.getCarModel();
 
         Car car = carRepository.findByMakeAndModel(carMake, carModel);
-        Optional<User> user = userRepository.findById(applicationFormDto.getUserId());
+        User user = userRepository.findById(applicationFormDto.getUserId()).orElseThrow(
+                () -> new RuntimeException("could not create user"));
 
-        Application application = applicationMapper.applicationFormDtoToApplication(applicationFormDto);
         application.setCar(car);
+        application.setUser(user);
 
+        application.setStatus(ApplicationStatus.PENDING);
 
         return applicationRepository.save(application);
     }
 
     @Override
-    public List<Application> findAllByUserId(long id) {return applicationRepository.findApplicationsByUserId(id);}
+    public List<Application> findAllByUserId(long id) {return applicationRepository.findApplicationsByUserUserId(id);}
 
 }

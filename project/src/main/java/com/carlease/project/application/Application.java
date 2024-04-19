@@ -40,6 +40,8 @@ public class Application {
     @ManyToOne
     @JoinColumn(name = "car_id")
     private Car car;
+
+    @Column(name = "manufacture_date")
     @NotNull
     private int manufactureDate;
 
