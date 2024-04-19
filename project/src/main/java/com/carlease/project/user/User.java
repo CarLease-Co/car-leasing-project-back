@@ -1,12 +1,14 @@
 package com.carlease.project.user;
 
+import com.carlease.project.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.management.relation.Role;
 
 @Entity
 @Data
@@ -17,6 +19,7 @@ public class User {
     @Column(name = "user_id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private long userId;
 
     @Column(name = "username")
@@ -40,8 +43,9 @@ public class User {
     @NotNull
     private String surname;
 
+
     @Column(name = "role")
     @NotNull
-    private Role role;
+    private UserRole role;
 
 }

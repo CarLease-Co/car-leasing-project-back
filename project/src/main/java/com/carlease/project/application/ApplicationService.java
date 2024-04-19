@@ -7,5 +7,7 @@ import java.util.List;
 public interface ApplicationService {
     List<Application> findAll();
     Application findById(long id);
-    Application create(Application application);
+    Application create(ApplicationFormDto applicationFormDto);
+
+    List<Application> findAllByUserId(long id);
 }

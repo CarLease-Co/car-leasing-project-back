@@ -20,13 +20,13 @@ public class UserController {
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<User>> getAllUsers() {
+    ResponseEntity<List<User>> getUsers() {
         List<User> list = userService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<User> getById(@PathVariable("id") Long id)
+    ResponseEntity<User> getUser(@PathVariable("id") Long id)
             throws UserNotFoundException {
         User user = userService.findById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
