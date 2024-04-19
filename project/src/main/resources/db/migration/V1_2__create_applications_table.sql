@@ -9,7 +9,6 @@ CREATE TABLE applications
     loan_duration         INT            NOT NULL CHECK (loan_duration BETWEEN 1 AND 120),
     manufacture_date      INTEGER                                 NOT NULL,
     free_text_explanation VARCHAR(255),
-    is_submitted          BOOLEAN                                 NOT NULL,
     status                VARCHAR(255)                            NOT NULL,
     start_date            date,
     end_date              date,
