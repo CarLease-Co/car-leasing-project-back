@@ -7,7 +7,6 @@ public interface ApplicationMapper {
 
     ApplicationMapper INSTANCE = Mappers.getMapper( ApplicationMapper.class );
 
-    //add fields here
     ApplicationFormDto applicationToApplicationDto(Application application);
     Application applicationFormDtoToApplication(ApplicationFormDto applicationFormDto);
 

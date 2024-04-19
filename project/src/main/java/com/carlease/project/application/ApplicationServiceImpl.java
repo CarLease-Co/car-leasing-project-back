@@ -23,12 +23,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ApplicationMapper applicationMapper;
 
     public ApplicationServiceImpl(ApplicationRepository applicationRepository,
-                                  CarRepository carRepository, UserRepository userRepository
-                                  ) {
+                                  CarRepository carRepository, UserRepository userRepository) {
         this.applicationRepository = applicationRepository;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
-
     }
 
     @Override
@@ -62,6 +60,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<Application> findAllByUserId(long id) {return applicationRepository.findApplicationsByUserUserId(id);}
+    public List<Application> findAllByUserId(long id) {
+        return applicationRepository.findApplicationsByUserUserId(id);
+    }
 
 }
