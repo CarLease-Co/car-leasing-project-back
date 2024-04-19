@@ -22,4 +22,10 @@ public class CarServiceImpl implements ICarService {
     public Car findById(long id) {
         return carRepository.findById(id).orElseThrow();
     }
+
+    @Override
+    public List<String> findModels(String make){
+        List<Car> cars = carRepository.findByMake(make);
+        return cars.stream().map(Car::getModel).distinct().toList();
+    }
 }

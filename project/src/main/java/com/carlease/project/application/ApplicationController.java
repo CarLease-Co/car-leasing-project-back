@@ -29,9 +29,15 @@ public class ApplicationController {
         return new ResponseEntity<>(application, HttpStatus.OK);
     }
 
+    @GetMapping("/user/{id}")
+    ResponseEntity<List<Application>> getApplicationsByUserId(@PathVariable("user_id") long id) {
+        List<Application> applications = applicationService.findAllByUserId(id);
+        return new ResponseEntity<>(applications, HttpStatus.OK);
+    }
+
     @PostMapping
-    ResponseEntity<Application> createApplication(@RequestBody Application application) {
-        Application newApplication = applicationService.create(application);
+    ResponseEntity<Application> createApplication(@RequestBody ApplicationFormDto applicationFormDto) {
+        Application newApplication = applicationService.create(applicationFormDto);
         return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
     }
 }
