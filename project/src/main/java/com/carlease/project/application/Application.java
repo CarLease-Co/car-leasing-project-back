@@ -46,9 +46,13 @@ public class Application {
     @Column(name = "free_text_explanation")
     private String textExplanation;
 
-    @Column(name = "is_submitted")
+    @Column(name="loan_duration")
     @NotNull
-    private boolean isSubmitted;
+    private int loanDuration;
+
+    @Column(name = "loan_amount")
+    @NotNull
+    private BigDecimal loanAmount;
 
     @Column(name = "status")
     @NotNull

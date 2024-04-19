@@ -3,12 +3,14 @@ INSERT INTO applications (user_id,
                           financial_obligations,
                           car_id,
                           manufacture_date,
+                          loan_duration,
+                          loan_amount,
                           free_text_explanation,
                           is_submitted,
                           status,
                           start_date,
                           end_date)
-VALUES (1, 5000.00, 1500.00, 1, 2013, 'Need the loan for a new car', TRUE, 'PENDING', '2024-01-01', NULL),
-       (1, 6000.00, 2000.00, 2, 2018, 'Upgrading to a larger vehicle', TRUE, 'APPROVED', '2024-02-01',
+VALUES (1, 5000.00, 1500.00, 1, 2013, 60, 10000, 'Need the loan for a new car', TRUE, 'PENDING', '2024-01-01', NULL),
+       (1, 6000.00, 2000.00, 2, 2018, 120, 30000, 'Upgrading to a larger vehicle', TRUE, 'APPROVED', '2024-02-01',
         '2029-02-01'),
-       (1, 4500.00, 1200.00, 3, 2021, 'Car loan for daily commute', FALSE, 'REVIEW_DECLINED', NULL, NULL);
+       (1, 4500.00, 1200.00, 3, 2021, 36, 40000, 'Car loan for daily commute', FALSE, 'REVIEW_DECLINED', NULL, NULL);
