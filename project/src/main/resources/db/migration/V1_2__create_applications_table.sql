@@ -5,6 +5,8 @@ CREATE TABLE applications
     monthly_income        DECIMAL                                 NOT NULL,
     financial_obligations DECIMAL                                 NOT NULL,
     car_id                BIGINT,
+    loan_amount           DECIMAL(19, 4) NOT NULL,
+    loan_duration         INT            NOT NULL CHECK (loan_duration BETWEEN 1 AND 120),
     manufacture_date      INTEGER                                 NOT NULL,
     free_text_explanation VARCHAR(255),
     is_submitted          BOOLEAN                                 NOT NULL,

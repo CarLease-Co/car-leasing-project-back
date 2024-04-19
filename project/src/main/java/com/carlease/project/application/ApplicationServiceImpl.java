@@ -28,5 +28,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.save(application);
     }
 
+    @Override
+    public List<Application> findAllByUserId(long id) {return applicationRepository.findApplicationsByUserId(id);}
 
 }

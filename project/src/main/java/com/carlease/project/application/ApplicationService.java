@@ -8,4 +8,6 @@ public interface ApplicationService {
     List<Application> findAll();
     Application findById(long id);
     Application create(Application application);
+
+    List<Application> findAllByUserId(long id);
 }
