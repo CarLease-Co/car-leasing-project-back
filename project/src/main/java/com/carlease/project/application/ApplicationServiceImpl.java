@@ -49,7 +49,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Car car = carRepository.findByMakeAndModel(carMake, carModel);
         Optional<User> user = userRepository.findById(applicationFormDto.getUserId());
 
-        Application application = applicationMapper.applicationDtoToApplication(applicationFormDto);
+        Application application = applicationMapper.applicationFormDtoToApplication(applicationFormDto);
         application.setCar(car);
 
 
