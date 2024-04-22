@@ -11,5 +11,7 @@ public interface IAutosuggestorService {
 
     BigDecimal calculateAverageCarPriceDependingOnYear(Application application, int currentYear);
 
-    Integer autosuggest(Application application, double interestRate, int currentYear, double rate);
+    Integer autosuggest(Application application, CarPrice price, double interestRate, double rate);
+
+    CarPrice carPrice (BigDecimal price);
 }
