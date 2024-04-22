@@ -32,25 +32,29 @@ public class Application {
     @Column(name = "monthly_income")
     @NotNull
     private BigDecimal monthlyIncome;
-    @Column(name="loan_duration")
-    @NotNull
-    private int loanDuration;
 
     @Column(name = "financial_obligations")
     @NotNull
     private BigDecimal financialObligations;
 
-    @Column(name = "loan_amount")
-    @NotNull
-    private BigDecimal loanAmount;
     @ManyToOne
     @JoinColumn(name = "car_id")
     private Car car;
+
+    @Column(name = "manufacture_date")
     @NotNull
     private int manufactureDate;
 
     @Column(name = "free_text_explanation")
     private String textExplanation;
+
+    @Column(name="loan_duration")
+    @NotNull
+    private int loanDuration;
+
+    @Column(name = "loan_amount")
+    @NotNull
+    private BigDecimal loanAmount;
 
     @Column(name = "status")
     @NotNull
