@@ -15,7 +15,6 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
         this.autosuggestorRepository = autosuggestorRepository;
     }
 
-
     @Override
     public Autosuggestor findById(long id) {
         return autosuggestorRepository.findById(id).orElseThrow();
@@ -28,8 +27,7 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
         BigDecimal loanAmount = application.getLoanAmount();
         double interestRateValue = interestRate / 100 + 1;
         BigDecimal totalInterestValue = BigDecimal.valueOf(Math.pow(interestRateValue, loanDuration));
-        BigDecimal totalInterest = loanAmount.multiply(totalInterestValue);
-        return loanAmount.add(totalInterest);
+        return loanAmount.multiply(totalInterestValue);
     }
 
     public BigDecimal calculateAverageCarPriceDependingOnYear(Application application, int currentYear) {
@@ -37,55 +35,34 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
 
         BigDecimal maxPrice = application.getCar().getPriceTo();
         BigDecimal carPriceUpToTenYears = application.getCar().getPriceFrom();
-
         int carYear = application.getManufactureDate();
 
-        // kiek kaina pasikeicia per vienus metus per pirmus 10 metu
-        BigDecimal priceChangePerYear = (carPriceUpToTenYears.add(maxPrice)).divide(BigDecimal.TEN);
+        BigDecimal priceChangePerYearUpToTenYears = maxPrice.subtract(carPriceUpToTenYears).divide(BigDecimal.TEN);
 
-        //kiek KARTU pasikeicia kaina per pirmus 10 metu
-        BigDecimal difference = maxPrice.divide(carPriceUpToTenYears);
+        BigDecimal difference = maxPrice.divide(carPriceUpToTenYears, 2, BigDecimal.ROUND_HALF_UP);
 
-        // kiek kainuos automobilis 20 metu senumo
-        BigDecimal carPriceUpToTwentyYears = carPriceUpToTenYears.divide(difference);
+        BigDecimal carPriceUpToTwentyYears = carPriceUpToTenYears.divide(difference, 2, BigDecimal.ROUND_HALF_UP);
 
-        // kiek kainuos automobilis 30 metu senumo
-        BigDecimal carPriceUpToThirtyYears = carPriceUpToTwentyYears.divide(difference);
+        BigDecimal carPriceUpToThirtyYears = carPriceUpToTwentyYears.divide(difference, 2, BigDecimal.ROUND_HALF_UP);
 
-        //Kiek kaina pasikeicia jei auto tarp 10 ir 20 metu senumo
-        BigDecimal priceChangePerYearTwentyYearsBefore = (carPriceUpToTenYears.add(carPriceUpToTwentyYears)).divide(BigDecimal.TEN);
+        BigDecimal priceChangePerYearUpToTwentyYears = carPriceUpToTenYears.subtract(carPriceUpToTwentyYears).divide(BigDecimal.TEN);
 
-        //Kiek kaina pasikeicia jei auto tarp 20 ir 30 metu senumo
-        BigDecimal priceChangePerYearThirtyYearsBefore = (carPriceUpToTwentyYears.add(carPriceUpToThirtyYears)).divide(BigDecimal.TEN);
+        BigDecimal priceChangePerYearUpToThirtyYears = carPriceUpToTwentyYears.subtract(carPriceUpToThirtyYears).divide(BigDecimal.TEN);
 
         if (carYear > currentYear - 10) {
             int carOld = currentYear - carYear;
-            carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYear));
+            carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTenYears));
 
         } else if (carYear > currentYear - 20) {
             int carOld = currentYear - 10 - carYear;
-            carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearTwentyYearsBefore));
+            carPrice = carPriceUpToTenYears.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTwentyYears));
 
         } else {
             int carOld = currentYear - 20 - carYear;
-            carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearThirtyYearsBefore));
+            carPrice = carPriceUpToTwentyYears.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToThirtyYears));
         }
         return carPrice;
     }
-
-//    Given,   (x1,y1) = (1,4)
-//             (x2,y2) = (6,9)
-//    x = 5
-
-//    From Linear Interpolation formula,
-//    y = y1+ (((x-x1) x (y2-y1))/ (x2-x1))
-//
-//     x = carYear -> application.getManufactureDate();
-//    x1  -> currentYear
-//    x2  -> currentYear-10
-//    y1 -> application.getCar().getPriceTo()
-//    y2 -> application.getCar().getPriceFrom()
-//    y??
 
     @Override
     public Integer autosuggest(Application application, double interestRate, int currentYear, double rate) {
