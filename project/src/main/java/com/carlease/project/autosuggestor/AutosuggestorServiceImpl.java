@@ -25,6 +25,16 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     @Override
+    public double calculateInterestRate(Application application, double interestFrom, double interestTo, int yearFrom, int yearTo) {
+
+        int carYear = application.getManufactureDate();
+        double slope = (interestFrom - interestTo) / (yearTo - yearFrom);
+        double interestRate = interestTo + slope * (carYear - yearFrom);
+        interestRate = Math.max(Math.min(interestRate, interestTo), interestFrom);
+
+        return interestRate;
+    }
+
     public List<Autosuggestor> findAll() {
         return autosuggestorRepository.findAll();
     }
@@ -107,10 +117,10 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     @Override
-    public Integer autosuggest(Application application, CarPrice price, double interestRate, double rate) {
+    public Integer autosuggest(Application application, CarPrice price, double interestRate, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo) {
 
         int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
-        int pointsForPayment = paymentEvaluation(application, interestRate, rate);
+        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, interestFrom, interestTo, yearFrom, yearTo), rate);
         int evaluation = pointsForLoan + pointsForPayment;
         save(application, evaluation);
         return evaluation;

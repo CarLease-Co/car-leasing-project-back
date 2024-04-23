@@ -18,12 +18,22 @@ public class Autosuggestor {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
+
     @ManyToOne
     @JoinColumn(name = "application_id")
     private Application application;
+
     private int evaluation;
-    private double interestRate;
+
     private int currentYear = LocalDate.now().getYear();
+
     private double rate;
 
+    private double interestFrom;
+
+    private double interestTo;
+
+    private int yearFrom;
+
+    private int yearTo;
 }

@@ -10,11 +10,13 @@ public interface AutosuggestorService {
     Autosuggestor findById(long id);
     List<Autosuggestor> findAll();
 
+    double calculateInterestRate(Application application, double interestFrom, double interestTo, int yearFrom, int yearTo);
+
     BigDecimal calculateTotalLoanPrice(Application application, double interestRate);
 
     BigDecimal calculateAverageCarPriceDependingOnYear(Application application, int currentYear);
 
-    Integer autosuggest(Application application, CarPrice price, double interestRate, double rate);
-
     CarPrice carPrice (BigDecimal price);
+
+    Integer autosuggest(Application application, CarPrice price, double interestRate, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo);
 }
