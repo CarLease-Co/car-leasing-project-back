@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "autosuggestors")
 public class Autosuggestor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
