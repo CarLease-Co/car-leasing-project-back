@@ -26,14 +26,13 @@ public class Autosuggestor {
 
     private int currentYear = LocalDate.now().getYear();
 
-    private double rate; // koeficientas kiek proc menesiniu islaidu nevirsyti
+    private double rate;
 
-    private double interestFrom; // maziausia palukanu norma
+    private double interestFrom;
 
-    private double interestTo; // didziausia palukanu norma
+    private double interestTo;
 
-    private int yearFrom; // maziausi metai
+    private int yearFrom;
 
-    private int yearTo; // didziausi metai
-
+    private int yearTo;
 }
