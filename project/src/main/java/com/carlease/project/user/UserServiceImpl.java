@@ -2,7 +2,6 @@ package com.carlease.project.user;
 
 import com.carlease.project.user.exceptions.IncorrectPasswordException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
-import com.carlease.project.user.exceptions.UsernameNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,14 +31,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserSession login(String username, String password) throws UsernameNotFoundException, IncorrectPasswordException {
+    public UserSession login(String username, String password) throws IncorrectPasswordException {
         User user = userRepository.findByUsername(username);
 
-        if (user == null) {
-            throw new UsernameNotFoundException(username);
-        }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IncorrectPasswordException(username);
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+            throw new IncorrectPasswordException("Incorrect username or password");
         }
 
         UserSession userSession = new UserSession();
