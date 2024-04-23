@@ -30,4 +30,12 @@ public class Autosuggestor {
 
     private double rate; // koeficientas kiek proc menesiniu islaidu nevirsyti
 
+    private double interestFrom; // maziausia palukanu norma
+
+    private double interestTo; // didziausia palukanu norma
+
+    private int yearFrom; // maziausi metai
+
+    private int yearTo; // didziausi metai
+
 }

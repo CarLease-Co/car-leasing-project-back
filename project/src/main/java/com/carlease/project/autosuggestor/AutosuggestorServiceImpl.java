@@ -4,7 +4,6 @@ import com.carlease.project.application.Application;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Service
 public class AutosuggestorServiceImpl implements IAutosuggestorService {
@@ -18,6 +17,17 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
     @Override
     public Autosuggestor findById(long id) {
         return autosuggestorRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public double calculateInterestRate(Application application, double interestFrom, double interestTo, int yearFrom, int yearTo) {
+
+        int carYear = application.getManufactureDate();
+        double slope = (interestFrom - interestTo) / (yearTo - yearFrom);
+        double interestRate = interestTo + slope * (carYear - yearFrom);
+        interestRate = Math.max(Math.min(interestRate, interestTo), interestFrom);
+
+        return interestRate;
     }
 
     @Override
