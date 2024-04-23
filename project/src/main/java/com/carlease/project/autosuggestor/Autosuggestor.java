@@ -29,11 +29,4 @@ public class Autosuggestor {
 
     private double rate;
 
-    private double interestFrom;
-
-    private double interestTo;
-
-    private int yearFrom;
-
-    private int yearTo;
 }

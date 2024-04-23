@@ -8,9 +8,10 @@ import java.util.List;
 
 public interface AutosuggestorService {
     Autosuggestor findById(long id);
-    List<Autosuggestor> findAll();
 
-    double calculateInterestRate(Application application, double interestFrom, double interestTo, int yearFrom, int yearTo);
+    double calculateInterestRate(Application application, InterestRate interestRate);
+
+    List<Autosuggestor> findAll();
 
     BigDecimal calculateTotalLoanPrice(Application application, double interestRate);
 
@@ -18,5 +19,5 @@ public interface AutosuggestorService {
 
     CarPrice carPrice (BigDecimal price);
 
-    Integer autosuggest(Application application, CarPrice price, double interestRate, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo);
+    Integer autosuggest(Application application, CarPrice price, double rate, InterestRate interestRate);
 }

@@ -25,14 +25,14 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     @Override
-    public double calculateInterestRate(Application application, double interestFrom, double interestTo, int yearFrom, int yearTo) {
+    public double calculateInterestRate(Application application, InterestRate interestRate) {
 
         int carYear = application.getManufactureDate();
-        double slope = (interestFrom - interestTo) / (yearTo - yearFrom);
-        double interestRate = interestTo + slope * (carYear - yearFrom);
-        interestRate = Math.max(Math.min(interestRate, interestTo), interestFrom);
+        double slope = (interestRate.getInterestFrom() - interestRate.getInterestTo()) / (interestRate.getYearTo() - interestRate.getYearFrom());
+        double calculatedRate = interestRate.getInterestTo() + slope * (carYear - interestRate.getYearFrom());
+        calculatedRate = Math.max(Math.min(calculatedRate, interestRate.getInterestTo()), interestRate.getInterestFrom());
 
-        return interestRate;
+        return calculatedRate;
     }
 
     public List<Autosuggestor> findAll() {
@@ -117,10 +117,10 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     @Override
-    public Integer autosuggest(Application application, CarPrice price, double interestRate, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo) {
+    public Integer autosuggest(Application application, CarPrice price, double rate, InterestRate interestRate) {
 
         int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
-        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, interestFrom, interestTo, yearFrom, yearTo), rate);
+        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, new InterestRate(interestRate.getInterestFrom(), interestRate.getInterestTo(), interestRate.getYearFrom(), interestRate.getYearTo())), rate);
         int evaluation = pointsForLoan + pointsForPayment;
         save(application, evaluation);
         return evaluation;
