@@ -75,12 +75,12 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
     }
 
     @Override
-    public Integer autosuggest(Application application, double interestRate, int currentYear, double rate) {
+    public Integer autosuggest(Application application, double interestRate, int currentYear, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo) {
         // kiek lieka pinigu naudoti per menesi
         BigDecimal amountLeftToUse = application.getMonthlyIncome().subtract(application.getFinancialObligations());
 
         // kokia menesine imoka norimai paskolai
-        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, interestRate).divide(BigDecimal.valueOf(application.getLoanDuration()));
+        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, calculateInterestRate(application, interestFrom, interestTo, yearFrom, yearTo)).divide(BigDecimal.valueOf(application.getLoanDuration()));
 
         //Kiek gali isvis tureti menesiniu isipareigojimu
         BigDecimal maxPossibleObligations = application.getMonthlyIncome().multiply(BigDecimal.valueOf(rate));
