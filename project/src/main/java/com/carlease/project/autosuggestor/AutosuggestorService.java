@@ -1,11 +1,14 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.application.ApplicationFormDto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-public interface IAutosuggestorService {
+public interface AutosuggestorService {
     Autosuggestor findById(long id);
+    List<Autosuggestor> findAll();
 
     BigDecimal calculateTotalLoanPrice(Application application, double interestRate);
 

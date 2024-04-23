@@ -1,14 +1,20 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
-public class AutosuggestorServiceImpl implements IAutosuggestorService {
+public class AutosuggestorServiceImpl implements AutosuggestorService {
     private static final float PERCENT = 0.1f;
     private final AutosuggestorRepository autosuggestorRepository;
+
+    @Autowired
+    private AutosuggestorMapper autosuggestorMapper;
+
     public AutosuggestorServiceImpl(AutosuggestorRepository autosuggestorRepository) {
         this.autosuggestorRepository = autosuggestorRepository;
     }
@@ -16,6 +22,11 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
     @Override
     public Autosuggestor findById(long id) {
         return autosuggestorRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public List<Autosuggestor> findAll() {
+        return autosuggestorRepository.findAll();
     }
 
     @Override
@@ -37,7 +48,10 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
 
         BigDecimal priceChangePerYearUpToTenYears = maxPrice.subtract(carPriceUpToTenYears).divide(BigDecimal.TEN);
 
-        BigDecimal difference = maxPrice.divide(carPriceUpToTenYears, 2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal difference = BigDecimal.ZERO;
+        if (!carPriceUpToTenYears.equals(BigDecimal.ZERO)) {
+            difference = maxPrice.divide(carPriceUpToTenYears, 2, BigDecimal.ROUND_HALF_UP);
+        }
 
         BigDecimal carPriceUpToTwentyYears = carPriceUpToTenYears.divide(difference, 2, BigDecimal.ROUND_HALF_UP);
 
@@ -47,17 +61,16 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
 
         BigDecimal priceChangePerYearUpToThirtyYears = carPriceUpToTwentyYears.subtract(carPriceUpToThirtyYears).divide(BigDecimal.TEN);
 
+        int carOld = currentYear = carYear;
+
         if (carYear > currentYear - 10) {
-            int carOld = currentYear - carYear;
             carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTenYears));
 
         } else if (carYear > currentYear - 20) {
-            int carOld = currentYear - 10 - carYear;
-            carPrice = carPriceUpToTenYears.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTwentyYears));
+            carPrice = carPriceUpToTenYears.subtract(BigDecimal.valueOf(carOld - 10).multiply(priceChangePerYearUpToTwentyYears));
 
         } else {
-            int carOld = currentYear - 20 - carYear;
-            carPrice = carPriceUpToTwentyYears.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToThirtyYears));
+            carPrice = carPriceUpToTwentyYears.subtract(BigDecimal.valueOf(carOld - 20).multiply(priceChangePerYearUpToThirtyYears));
         }
         return carPrice;
     }
@@ -71,24 +84,24 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
         if (loanAmount.compareTo(price.getAvgMax()) == 1) {
             BigDecimal evaluationRange = price.getAvgMax().subtract(price.getAvgPrice());
             BigDecimal loanEvaluationRange = loanAmount.subtract(price.getAvgPrice());
-            return -loanEvaluationRange.divide(evaluationRange).subtract(BigDecimal.ONE).intValue();
+            return -loanEvaluationRange.divide(evaluationRange, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).intValue();
         } else if (price.getAvgMin().compareTo(loanAmount) == 1) {
             BigDecimal evaluationRange = price.getAvgPrice().subtract(price.getAvgMin());
             BigDecimal loanEvaluationRange = price.getAvgPrice().subtract(loanAmount);
-            return loanEvaluationRange.divide(evaluationRange).subtract(BigDecimal.ONE).intValue();
+            return loanEvaluationRange.divide(evaluationRange, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).intValue();
         }
         return 0;
     }
 
     public Integer paymentEvaluation(Application application, double interestRate, double rate) {
-        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, interestRate).divide(BigDecimal.valueOf(application.getLoanDuration()));
+        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, interestRate).divide(BigDecimal.valueOf(application.getLoanDuration()), 2, BigDecimal.ROUND_HALF_UP);
 
         BigDecimal maxPossibleObligations = application.getMonthlyIncome().subtract(application.getFinancialObligations().multiply(BigDecimal.valueOf(rate)));
 
         if (maxPossibleObligations.compareTo(monthlyPayment) == 1) {
-            return BigDecimal.ONE.subtract(monthlyPayment.divide(maxPossibleObligations)).multiply(BigDecimal.TEN).intValue();
+            return BigDecimal.ONE.subtract(monthlyPayment.divide(maxPossibleObligations, 2, BigDecimal.ROUND_HALF_UP)).multiply(BigDecimal.TEN).intValue();
         } else if (monthlyPayment.compareTo(maxPossibleObligations) == 1) {
-            return -monthlyPayment.divide(maxPossibleObligations).subtract(BigDecimal.ONE).multiply(BigDecimal.TEN).intValue();
+            return -monthlyPayment.divide(maxPossibleObligations, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).multiply(BigDecimal.TEN).intValue();
         }
         return 0;
     }
@@ -98,6 +111,16 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
 
         int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
         int pointsForPayment = paymentEvaluation(application, interestRate, rate);
-        return pointsForLoan + pointsForPayment;
+        int evaluation = pointsForLoan + pointsForPayment;
+        save(application, evaluation);
+        return evaluation;
+    }
+
+    private void save(Application application, Integer evaluation) {
+        Autosuggestor autosuggestion = new Autosuggestor();
+        autosuggestion.setApplication(application);
+        autosuggestion.setEvaluation(evaluation);
+
+        autosuggestorRepository.save(autosuggestion);
     }
 }
