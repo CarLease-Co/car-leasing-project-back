@@ -6,7 +6,7 @@ import com.carlease.project.user.exceptions.UsernameNotFoundException;
 
 import java.util.List;
 
-public interface IUserService {
+public interface UserService {
     List<User> findAll();
     User findById(long id) throws UserNotFoundException;
     UserSession login(String username, String password) throws UsernameNotFoundException, IncorrectPasswordException;

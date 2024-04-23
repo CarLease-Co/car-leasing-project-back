@@ -1,14 +1,19 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
-public class AutosuggestorServiceImpl implements IAutosuggestorService {
-
+public class AutosuggestorServiceImpl implements AutosuggestorService {
+    private static final float PERCENT = 0.1f;
     private final AutosuggestorRepository autosuggestorRepository;
+
+    @Autowired
+    private AutosuggestorMapper autosuggestorMapper;
 
     public AutosuggestorServiceImpl(AutosuggestorRepository autosuggestorRepository) {
         this.autosuggestorRepository = autosuggestorRepository;
@@ -30,6 +35,10 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
         return interestRate;
     }
 
+    public List<Autosuggestor> findAll() {
+        return autosuggestorRepository.findAll();
+    }
+
     @Override
     public BigDecimal calculateTotalLoanPrice(Application application, double interestRate) {
 
@@ -49,7 +58,10 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
 
         BigDecimal priceChangePerYearUpToTenYears = maxPrice.subtract(carPriceUpToTenYears).divide(BigDecimal.TEN);
 
-        BigDecimal difference = maxPrice.divide(carPriceUpToTenYears, 2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal difference = BigDecimal.ZERO;
+        if (!carPriceUpToTenYears.equals(BigDecimal.ZERO)) {
+            difference = maxPrice.divide(carPriceUpToTenYears, 2, BigDecimal.ROUND_HALF_UP);
+        }
 
         BigDecimal carPriceUpToTwentyYears = carPriceUpToTenYears.divide(difference, 2, BigDecimal.ROUND_HALF_UP);
 
@@ -59,42 +71,66 @@ public class AutosuggestorServiceImpl implements IAutosuggestorService {
 
         BigDecimal priceChangePerYearUpToThirtyYears = carPriceUpToTwentyYears.subtract(carPriceUpToThirtyYears).divide(BigDecimal.TEN);
 
+        int carOld = currentYear = carYear;
+
         if (carYear > currentYear - 10) {
-            int carOld = currentYear - carYear;
             carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTenYears));
 
         } else if (carYear > currentYear - 20) {
-            int carOld = currentYear - 10 - carYear;
-            carPrice = carPriceUpToTenYears.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTwentyYears));
+            carPrice = carPriceUpToTenYears.subtract(BigDecimal.valueOf(carOld - 10).multiply(priceChangePerYearUpToTwentyYears));
 
         } else {
-            int carOld = currentYear - 20 - carYear;
-            carPrice = carPriceUpToTwentyYears.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToThirtyYears));
+            carPrice = carPriceUpToTwentyYears.subtract(BigDecimal.valueOf(carOld - 20).multiply(priceChangePerYearUpToThirtyYears));
         }
         return carPrice;
     }
 
-    @Override
-    public Integer autosuggest(Application application, double interestRate, int currentYear, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo) {
-        // kiek lieka pinigu naudoti per menesi
-        BigDecimal amountLeftToUse = application.getMonthlyIncome().subtract(application.getFinancialObligations());
-
-        // kokia menesine imoka norimai paskolai
-        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, calculateInterestRate(application, interestFrom, interestTo, yearFrom, yearTo)).divide(BigDecimal.valueOf(application.getLoanDuration()));
-
-        //Kiek gali isvis tureti menesiniu isipareigojimu
-        BigDecimal maxPossibleObligations = application.getMonthlyIncome().multiply(BigDecimal.valueOf(rate));
-
-        int evaluation = 0;
-
-        if (application.getMonthlyIncome().subtract(application.getFinancialObligations()).compareTo(maxPossibleObligations) == 0) {
-            evaluation = 0;
-        } else if (application.getMonthlyIncome().compareTo(maxPossibleObligations) == 1) {
-
-        }
-
-        return null;
+    public CarPrice carPrice(BigDecimal price) {
+        BigDecimal value = price.multiply(BigDecimal.valueOf(PERCENT));
+        return new CarPrice(price, price.subtract(value), price.add(value));
     }
 
+    public Integer loanAmountEvaluation(CarPrice price, BigDecimal loanAmount) {
+        if (loanAmount.compareTo(price.getAvgMax()) == 1) {
+            BigDecimal evaluationRange = price.getAvgMax().subtract(price.getAvgPrice());
+            BigDecimal loanEvaluationRange = loanAmount.subtract(price.getAvgPrice());
+            return -loanEvaluationRange.divide(evaluationRange, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).intValue();
+        } else if (price.getAvgMin().compareTo(loanAmount) == 1) {
+            BigDecimal evaluationRange = price.getAvgPrice().subtract(price.getAvgMin());
+            BigDecimal loanEvaluationRange = price.getAvgPrice().subtract(loanAmount);
+            return loanEvaluationRange.divide(evaluationRange, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).intValue();
+        }
+        return 0;
+    }
 
+    public Integer paymentEvaluation(Application application, double interestRate, double rate) {
+        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, interestRate).divide(BigDecimal.valueOf(application.getLoanDuration()), 2, BigDecimal.ROUND_HALF_UP);
+
+        BigDecimal maxPossibleObligations = application.getMonthlyIncome().subtract(application.getFinancialObligations().multiply(BigDecimal.valueOf(rate)));
+
+        if (maxPossibleObligations.compareTo(monthlyPayment) == 1) {
+            return BigDecimal.ONE.subtract(monthlyPayment.divide(maxPossibleObligations, 2, BigDecimal.ROUND_HALF_UP)).multiply(BigDecimal.TEN).intValue();
+        } else if (monthlyPayment.compareTo(maxPossibleObligations) == 1) {
+            return -monthlyPayment.divide(maxPossibleObligations, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).multiply(BigDecimal.TEN).intValue();
+        }
+        return 0;
+    }
+
+    @Override
+    public Integer autosuggest(Application application, CarPrice price, double interestRate, double rate, double interestFrom, double interestTo, int yearFrom, int yearTo) {
+
+        int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
+        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, interestFrom, interestTo, yearFrom, yearTo), rate);
+        int evaluation = pointsForLoan + pointsForPayment;
+        save(application, evaluation);
+        return evaluation;
+    }
+
+    private void save(Application application, Integer evaluation) {
+        Autosuggestor autosuggestion = new Autosuggestor();
+        autosuggestion.setApplication(application);
+        autosuggestion.setEvaluation(evaluation);
+
+        autosuggestorRepository.save(autosuggestion);
+    }
 }

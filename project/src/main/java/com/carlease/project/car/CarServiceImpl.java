@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CarServiceImpl implements ICarService {
+public class CarServiceImpl implements CarService {
 
     private final CarRepository carRepository;
 

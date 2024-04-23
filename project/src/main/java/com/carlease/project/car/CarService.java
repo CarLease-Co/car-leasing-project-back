@@ -1,9 +1,8 @@
 package com.carlease.project.car;
-import com.carlease.project.user.User;
 
 import java.util.List;
 
-public interface ICarService {
+public interface CarService {
     List<Car> findAll();
     Car findById(long id);
     List<String> findModels(String make);
