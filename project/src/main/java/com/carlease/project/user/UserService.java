@@ -5,7 +5,7 @@ import com.carlease.project.user.exceptions.UserNotFoundException;
 
 import java.util.List;
 
-public interface IUserService {
+public interface UserService {
     List<User> findAll();
 
     User findById(long id) throws UserNotFoundException;

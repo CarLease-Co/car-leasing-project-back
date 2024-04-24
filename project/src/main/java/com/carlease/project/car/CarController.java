@@ -19,15 +19,15 @@ public class CarController {
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<Car>> getCars() {
-        List<Car> list = carServiceImpl.findAll();
+    ResponseEntity<List<CarDto>> getCars() {
+        List<CarDto> list = carServiceImpl.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Car> getCar(@PathVariable("id") long id) {
+    ResponseEntity<CarDto> getCar(@PathVariable("id") long id) throws CarNotFoundException {
 
-        Car car = carServiceImpl.findById(id);
+        CarDto car = carServiceImpl.findById(id);
         return new ResponseEntity<>(car, HttpStatus.OK);
     }
 
@@ -39,9 +39,9 @@ public class CarController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Car> updateCarPrices(@PathVariable Long id, @RequestBody Car car) {
+    public ResponseEntity<CarDto> updateCarPrices(@PathVariable Long id, @RequestBody CarDto carDto) {
         try {
-            Car updatedCar = carServiceImpl.updatePrice(id, car);
+            CarDto updatedCar = carServiceImpl.updatePrice(id, carDto);
             return ResponseEntity.ok(updatedCar);
         } catch (CarNotFoundException e) {
             return ResponseEntity.notFound().build();
