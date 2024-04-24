@@ -4,10 +4,9 @@ import com.carlease.project.application.Application;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Service
-public class AutosuggestorServiceImpl implements IAutosuggestorService {
+public class AutosuggestorServiceImpl implements AutosuggestorService {
 
     private final AutosuggestorRepository autosuggestorRepository;
 

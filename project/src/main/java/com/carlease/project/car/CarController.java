@@ -1,5 +1,6 @@
 package com.carlease.project.car;
 
+import com.carlease.project.user.exceptions.CarNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,27 +14,37 @@ public class CarController {
     private CarServiceImpl carServiceImpl;
 
     @Autowired
-    private CarController(CarServiceImpl carServiceImpl){
+    private CarController(CarServiceImpl carServiceImpl) {
         this.carServiceImpl = carServiceImpl;
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<Car>> getCars() {
-        List<Car> list = carServiceImpl.findAll();
+    ResponseEntity<List<CarDto>> getCars() {
+        List<CarDto> list = carServiceImpl.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Car> getCar(@PathVariable("id") long id) {
+    ResponseEntity<CarDto> getCar(@PathVariable("id") long id) throws CarNotFoundException {
 
-        Car car = carServiceImpl.findById(id);
+        CarDto car = carServiceImpl.findById(id);
         return new ResponseEntity<>(car, HttpStatus.OK);
     }
 
     @GetMapping("/{make}/models")
     @ResponseBody
-    ResponseEntity<List<String>> getModels(@PathVariable("make") String make){
-        List <String> models = carServiceImpl.findModels(make);
+    ResponseEntity<List<String>> getModels(@PathVariable("make") String make) {
+        List<String> models = carServiceImpl.findModels(make);
         return new ResponseEntity<>(models, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CarDto> updateCarPrices(@PathVariable Long id, @RequestBody CarDto carDto) {
+        try {
+            CarDto updatedCar = carServiceImpl.updatePrice(id, carDto);
+            return ResponseEntity.ok(updatedCar);
+        } catch (CarNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
