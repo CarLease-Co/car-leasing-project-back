@@ -1,5 +1,6 @@
 package com.carlease.project.application;
 
+import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
@@ -18,6 +19,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final CarRepository carRepository;
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private AutosuggestorServiceImpl autosuggestorServiceImpl;
+    @Autowired
+    private AutosuggestorRepository autosuggestorRepository;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -54,7 +60,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setCar(car);
         application.setUser(user);
 
-        application.setStatus(ApplicationStatus.PENDING);
+        application.setStatus(applicationFormDto.getStatus());
 
         return applicationRepository.save(application);
     }
@@ -62,6 +68,26 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public List<Application> findAllByUserId(long id) {
         return applicationRepository.findApplicationsByUserUserId(id);
+    }
+
+    public Integer evaluation(Application application) {
+
+        CarPrice price = autosuggestorServiceImpl.carPrice(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(application, application.getManufactureDate()));
+        if (application.getStatus() == ApplicationStatus.PENDING) {
+
+            InterestRate interestRate = new InterestRate(0.05, 0.1, 2010, 2022);
+
+            Integer calculation = autosuggestorServiceImpl.autosuggest(application, price, 50, interestRate);
+
+            Autosuggestor autosuggestor = new Autosuggestor();
+            autosuggestor.setApplication(application);
+            autosuggestor.setEvaluation(calculation);
+            autosuggestorRepository.save(autosuggestor);
+
+            return calculation;
+        } else {
+            return null;
+        }
     }
 
 }
