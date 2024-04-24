@@ -21,5 +21,9 @@ public class InterestRate {
     private int yearTo;
 
     public InterestRate(double interestFrom, double interestTo, int yearFrom, int yearTo) {
+        this.interestFrom = interestFrom;
+        this.interestTo = interestTo;
+        this.yearFrom = yearFrom;
+        this.yearTo = yearTo;
     }
 }
