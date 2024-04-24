@@ -1,5 +1,6 @@
 package com.carlease.project.car;
 
+import com.carlease.project.user.exceptions.CarNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ public class CarController {
     private CarServiceImpl carServiceImpl;
 
     @Autowired
-    private CarController(CarServiceImpl carServiceImpl){
+    private CarController(CarServiceImpl carServiceImpl) {
         this.carServiceImpl = carServiceImpl;
     }
 
@@ -32,8 +33,18 @@ public class CarController {
 
     @GetMapping("/{make}/models")
     @ResponseBody
-    ResponseEntity<List<String>> getModels(@PathVariable("make") String make){
-        List <String> models = carServiceImpl.findModels(make);
+    ResponseEntity<List<String>> getModels(@PathVariable("make") String make) {
+        List<String> models = carServiceImpl.findModels(make);
         return new ResponseEntity<>(models, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Car> updateCarPrices(@PathVariable Long id, @RequestBody Car car) {
+        try {
+            Car updatedCar = carServiceImpl.updatePrice(id, car);
+            return ResponseEntity.ok(updatedCar);
+        } catch (CarNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
