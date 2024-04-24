@@ -1,24 +1,32 @@
 package com.carlease.project.application;
 
-import com.carlease.project.autosuggestor.*;
+import com.carlease.project.autosuggestor.Autosuggestor;
+import com.carlease.project.autosuggestor.AutosuggestorRepository;
+import com.carlease.project.autosuggestor.AutosuggestorServiceImpl;
+import com.carlease.project.autosuggestor.CarPrice;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
+import com.carlease.project.interestrate.InterestRate;
+import com.carlease.project.interestrate.InterestRateDTO;
+import com.carlease.project.interestrate.InterestRateMapper;
+import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final CarRepository carRepository;
-
     private final UserRepository userRepository;
+    private final InterestRateService interestRateService;
+
+    private final InterestRateMapper interestRateMapper;
 
     @Autowired
     private AutosuggestorServiceImpl autosuggestorServiceImpl;
@@ -29,10 +37,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ApplicationMapper applicationMapper;
 
     public ApplicationServiceImpl(ApplicationRepository applicationRepository,
-                                  CarRepository carRepository, UserRepository userRepository) {
+                                  CarRepository carRepository, UserRepository userRepository, InterestRateService interestRateService, InterestRateMapper interestRateMapper) {
         this.applicationRepository = applicationRepository;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
+        this.interestRateService = interestRateService;
+        this.interestRateMapper = interestRateMapper;
     }
 
     @Override
@@ -72,10 +82,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     public Integer evaluation(Application application) {
 
+        InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
+        InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
+
         CarPrice price = autosuggestorServiceImpl.carPrice(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(application, application.getManufactureDate()));
         if (application.getStatus() == ApplicationStatus.PENDING) {
-
-            InterestRate interestRate = new InterestRate(0.05, 0.1, 2010, 2022);
 
             Integer calculation = autosuggestorServiceImpl.autosuggest(application, price, 50, interestRate);
 
