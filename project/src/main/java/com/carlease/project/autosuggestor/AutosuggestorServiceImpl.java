@@ -1,6 +1,7 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.interestrate.InterestRate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -118,9 +119,15 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
 
     @Override
     public Integer autosuggest(Application application, CarPrice price, double rate, InterestRate interestRate) {
+        InterestRate calculatedInterestRate = InterestRate.builder()
+                .interestFrom(interestRate.getInterestFrom())
+                .interestTo(interestRate.getInterestTo())
+                .yearFrom(interestRate.getYearFrom())
+                .yearTo(interestRate.getYearTo())
+                .build();
 
         int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
-        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, new InterestRate(interestRate.getInterestFrom(), interestRate.getInterestTo(), interestRate.getYearFrom(), interestRate.getYearTo())), rate);
+        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, calculatedInterestRate), rate);
         int evaluation = pointsForLoan + pointsForPayment;
         save(application, evaluation);
         return evaluation;
