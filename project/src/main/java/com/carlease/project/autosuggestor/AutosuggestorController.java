@@ -2,6 +2,7 @@ package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
 import com.carlease.project.application.ApplicationServiceImpl;
+import com.carlease.project.interestrate.InterestRate;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
