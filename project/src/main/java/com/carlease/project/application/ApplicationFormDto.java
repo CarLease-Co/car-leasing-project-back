@@ -1,6 +1,7 @@
 package com.carlease.project.application;
 
 
+import com.carlease.project.enums.ApplicationStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,4 +19,5 @@ public class ApplicationFormDto {
     private int loanDuration;
     private BigDecimal loanAmount;
     private LocalDate startDate;
+    private ApplicationStatus status;
 }

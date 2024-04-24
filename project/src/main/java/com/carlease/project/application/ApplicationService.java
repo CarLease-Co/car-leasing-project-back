@@ -8,6 +8,6 @@ public interface ApplicationService {
     List<Application> findAll();
     Application findById(long id);
     Application create(ApplicationFormDto applicationFormDto);
-
+    Integer evaluation(Application application);
     List<Application> findAllByUserId(long id);
 }
