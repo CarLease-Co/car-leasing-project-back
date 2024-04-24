@@ -2,12 +2,14 @@ package com.carlease.project.interestrate;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "interest_rates")
 public class InterestRate {
@@ -20,10 +22,4 @@ public class InterestRate {
     private int yearFrom;
     private int yearTo;
 
-    public InterestRate(double interestFrom, double interestTo, int yearFrom, int yearTo) {
-        this.interestFrom = interestFrom;
-        this.interestTo = interestTo;
-        this.yearFrom = yearFrom;
-        this.yearTo = yearTo;
-    }
 }
