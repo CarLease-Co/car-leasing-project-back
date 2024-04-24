@@ -1,7 +1,7 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
-import com.carlease.project.application.ApplicationFormDto;
+import com.carlease.project.interestrate.InterestRate;
 
 import java.math.BigDecimal;
 import java.util.List;
