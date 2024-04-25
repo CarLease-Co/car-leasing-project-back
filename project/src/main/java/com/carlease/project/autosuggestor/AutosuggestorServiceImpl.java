@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 public class AutosuggestorServiceImpl implements AutosuggestorService {
     private static final float PERCENT = 0.1f;
+
     private final AutosuggestorRepository autosuggestorRepository;
     private final CarRepository carRepository;
     @Autowired
