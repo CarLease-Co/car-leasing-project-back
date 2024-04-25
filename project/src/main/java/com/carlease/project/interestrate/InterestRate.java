@@ -17,6 +17,7 @@ public class InterestRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    private double rate;
     private double interestFrom;
     private double interestTo;
     private int yearFrom;

@@ -13,8 +13,6 @@ public class AutosuggestorDto {
     private Long id;
     private Application application;
     private int evaluation;
-    private double interestRate;
     private int currentYear = LocalDate.now().getYear();
-    private double rate;
     private CarPrice price;
 }

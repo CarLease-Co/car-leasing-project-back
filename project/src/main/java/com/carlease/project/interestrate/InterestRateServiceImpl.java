@@ -31,6 +31,7 @@ public class InterestRateServiceImpl implements InterestRateService{
         List<InterestRate> existingInterestRates = interestRateRepository.findAll();
         if (!existingInterestRates.isEmpty()) {
             InterestRate existingInterestRate = existingInterestRates.getFirst();
+            existingInterestRate.setRate(interestRate.getRate());
             existingInterestRate.setInterestFrom(interestRate.getInterestFrom());
             existingInterestRate.setInterestTo(interestRate.getInterestTo());
             existingInterestRate.setYearFrom(interestRate.getYearFrom());

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterestRateDTO {
+    private double rate;
     private double interestFrom;
     private double interestTo;
     private int yearFrom;

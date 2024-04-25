@@ -88,7 +88,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         CarPrice price = autosuggestorServiceImpl.carPrice(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(application, application.getManufactureDate()));
         if (application.getStatus() == ApplicationStatus.PENDING) {
 
-            Integer calculation = autosuggestorServiceImpl.autosuggest(application, price, 50, interestRate);
+            Integer calculation = autosuggestorServiceImpl.autosuggest(application, price, interestRate);
 
             Autosuggestor autosuggestor = new Autosuggestor();
             autosuggestor.setApplication(application);

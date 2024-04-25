@@ -22,9 +22,9 @@ public class AutosuggestorController {
     private final ApplicationServiceImpl applicationService;
 
     @PostMapping("/{applicationId}/{interestRate}/{rate}")
-    public Integer evaluate(@PathVariable Long applicationId, @PathVariable InterestRate interestRate, @PathVariable double rate) {
+    public Integer evaluate(@PathVariable Long applicationId, @PathVariable InterestRate interestRate) {
         Application existingApplication = applicationService.findById(applicationId);
-        return autosuggestorService.autosuggest(existingApplication, autosuggestorService.carPrice(BigDecimal.valueOf(10000)), rate, interestRate);
+        return autosuggestorService.autosuggest(existingApplication, autosuggestorService.carPrice(BigDecimal.valueOf(10000)), interestRate);
     }
 
     @GetMapping(produces = "application/json")

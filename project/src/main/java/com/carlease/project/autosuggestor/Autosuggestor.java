@@ -27,6 +27,4 @@ public class Autosuggestor {
 
     private int currentYear = LocalDate.now().getYear();
 
-    private double rate;
-
 }

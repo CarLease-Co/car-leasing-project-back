@@ -118,8 +118,9 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     @Override
-    public Integer autosuggest(Application application, CarPrice price, double rate, InterestRate interestRate) {
+    public Integer autosuggest(Application application, CarPrice price, InterestRate interestRate) {
         InterestRate calculatedInterestRate = InterestRate.builder()
+                .rate(interestRate.getRate())
                 .interestFrom(interestRate.getInterestFrom())
                 .interestTo(interestRate.getInterestTo())
                 .yearFrom(interestRate.getYearFrom())
@@ -127,7 +128,7 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
                 .build();
 
         int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
-        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, calculatedInterestRate), rate);
+        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, calculatedInterestRate), calculatedInterestRate.getRate());
         int evaluation = pointsForLoan + pointsForPayment;
         save(application, evaluation);
         return evaluation;
