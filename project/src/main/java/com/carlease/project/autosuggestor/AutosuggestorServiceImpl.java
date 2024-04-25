@@ -1,7 +1,12 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.application.ApplicationFormDto;
+import com.carlease.project.application.ApplicationMapper;
+import com.carlease.project.car.Car;
+import com.carlease.project.car.CarRepository;
 import com.carlease.project.interestrate.InterestRate;
+import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,23 +17,29 @@ import java.util.List;
 public class AutosuggestorServiceImpl implements AutosuggestorService {
     private static final float PERCENT = 0.1f;
     private final AutosuggestorRepository autosuggestorRepository;
-
+    private final CarRepository carRepository;
     @Autowired
     private AutosuggestorMapper autosuggestorMapper;
 
-    public AutosuggestorServiceImpl(AutosuggestorRepository autosuggestorRepository) {
+    @Autowired
+    private ApplicationMapper applicationMapper;
+
+
+    public AutosuggestorServiceImpl(AutosuggestorRepository autosuggestorRepository, CarRepository carRepository) {
         this.autosuggestorRepository = autosuggestorRepository;
+        this.carRepository = carRepository;
     }
 
     @Override
-    public Autosuggestor findById(long id) {
-        return autosuggestorRepository.findById(id).orElseThrow();
+    public AutosuggestorDto findById(long id) throws AutosuggestorNotFoundException {
+        Autosuggestor autosuggestor = autosuggestorRepository.findById(id).orElseThrow(() -> new AutosuggestorNotFoundException("id"));
+        return autosuggestorMapper.toDto(autosuggestor);
     }
 
     @Override
-    public double calculateInterestRate(Application application, InterestRate interestRate) {
+    public double calculateInterestRate(ApplicationFormDto applicationDto, InterestRate interestRate) {
 
-        int carYear = application.getManufactureDate();
+        int carYear = applicationDto.getManufactureDate();
         double slope = (interestRate.getInterestFrom() - interestRate.getInterestTo()) / (interestRate.getYearTo() - interestRate.getYearFrom());
         double calculatedRate = interestRate.getInterestTo() + slope * (carYear - interestRate.getYearFrom());
         calculatedRate = Math.max(Math.min(calculatedRate, interestRate.getInterestTo()), interestRate.getInterestFrom());
@@ -36,26 +47,30 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
         return calculatedRate;
     }
 
-    public List<Autosuggestor> findAll() {
-        return autosuggestorRepository.findAll();
+    public List<AutosuggestorDto> findAll() {
+        List<Autosuggestor> autosuggestors = autosuggestorRepository.findAll();
+        return autosuggestors.stream()
+                .map(autosuggestorMapper::toDto)
+                .toList();
     }
 
     @Override
-    public BigDecimal calculateTotalLoanPrice(Application application, double interestRate) {
+    public BigDecimal calculateTotalLoanPrice(ApplicationFormDto applicationDto, double interestRate) {
 
-        int loanDuration = application.getLoanDuration();
-        BigDecimal loanAmount = application.getLoanAmount();
+        int loanDuration = applicationDto.getLoanDuration();
+        BigDecimal loanAmount = applicationDto.getLoanAmount();
         double interestRateValue = interestRate / 100 + 1;
         BigDecimal totalInterestValue = BigDecimal.valueOf(Math.pow(interestRateValue, loanDuration));
         return loanAmount.multiply(totalInterestValue);
     }
 
-    public BigDecimal calculateAverageCarPriceDependingOnYear(Application application, int currentYear) {
+    public BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto, int currentYear) {
         BigDecimal carPrice;
 
-        BigDecimal maxPrice = application.getCar().getPriceTo();
-        BigDecimal carPriceUpToTenYears = application.getCar().getPriceFrom();
-        int carYear = application.getManufactureDate();
+        Car car = carRepository.findByMakeAndModel(applicationDto.getCarMake(), applicationDto.getCarModel());
+        BigDecimal maxPrice = car.getPriceTo();
+        BigDecimal carPriceUpToTenYears = car.getPriceFrom();
+        int carYear = applicationDto.getManufactureDate();
 
         BigDecimal priceChangePerYearUpToTenYears = maxPrice.subtract(carPriceUpToTenYears).divide(BigDecimal.TEN);
 
@@ -104,10 +119,10 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
         return 0;
     }
 
-    public Integer paymentEvaluation(Application application, double interestRate, double rate) {
-        BigDecimal monthlyPayment = calculateTotalLoanPrice(application, interestRate).divide(BigDecimal.valueOf(application.getLoanDuration()), 2, BigDecimal.ROUND_HALF_UP);
+    public Integer paymentEvaluation(ApplicationFormDto applicationDto, double interestRate, double rate) {
+        BigDecimal monthlyPayment = calculateTotalLoanPrice(applicationDto, interestRate).divide(BigDecimal.valueOf(applicationDto.getLoanDuration()), 2, BigDecimal.ROUND_HALF_UP);
 
-        BigDecimal maxPossibleObligations = application.getMonthlyIncome().subtract(application.getFinancialObligations().multiply(BigDecimal.valueOf(rate)));
+        BigDecimal maxPossibleObligations = applicationDto.getMonthlyIncome().subtract(applicationDto.getFinancialObligations().multiply(BigDecimal.valueOf(rate)));
 
         if (maxPossibleObligations.compareTo(monthlyPayment) == 1) {
             return BigDecimal.ONE.subtract(monthlyPayment.divide(maxPossibleObligations, 2, BigDecimal.ROUND_HALF_UP)).multiply(BigDecimal.TEN).intValue();
@@ -118,7 +133,7 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     @Override
-    public Integer autosuggest(Application application, CarPrice price, InterestRate interestRate) {
+    public Integer autosuggest(ApplicationFormDto applicationDto, CarPrice price, InterestRate interestRate) {
         InterestRate calculatedInterestRate = InterestRate.builder()
                 .rate(interestRate.getRate())
                 .interestFrom(interestRate.getInterestFrom())
@@ -127,16 +142,16 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
                 .yearTo(interestRate.getYearTo())
                 .build();
 
-        int pointsForLoan = loanAmountEvaluation(price, application.getLoanAmount());
-        int pointsForPayment = paymentEvaluation(application, calculateInterestRate(application, calculatedInterestRate), calculatedInterestRate.getRate());
+        int pointsForLoan = loanAmountEvaluation(price, applicationDto.getLoanAmount());
+        int pointsForPayment = paymentEvaluation(applicationDto, calculateInterestRate(applicationDto, calculatedInterestRate), calculatedInterestRate.getRate());
         int evaluation = pointsForLoan + pointsForPayment;
-        save(application, evaluation);
+        save(applicationDto, evaluation);
         return evaluation;
     }
 
-    private void save(Application application, Integer evaluation) {
+    private void save(ApplicationFormDto applicationDto, Integer evaluation) {
         Autosuggestor autosuggestion = new Autosuggestor();
-        autosuggestion.setApplication(application);
+        autosuggestion.setApplication(applicationMapper.toEntity(applicationDto));
         autosuggestion.setEvaluation(evaluation);
 
         autosuggestorRepository.save(autosuggestion);

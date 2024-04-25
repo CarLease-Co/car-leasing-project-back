@@ -1,13 +1,13 @@
 package com.carlease.project.application;
 
-import com.carlease.project.user.User;
+import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 
 import java.util.List;
 
 public interface ApplicationService {
-    List<Application> findAll();
-    Application findById(long id);
-    Application create(ApplicationFormDto applicationFormDto);
-    Integer evaluation(Application application);
-    List<Application> findAllByUserId(long id);
+    List<ApplicationFormDto> findAll();
+    ApplicationFormDto findById(long id) throws ApplicationNotFoundException;
+    ApplicationFormDto create(ApplicationFormDto applicationFormDto);
+    void evaluation(ApplicationFormDto applicationDto);
+    List<ApplicationFormDto> findAllByUserId(long id);
 }

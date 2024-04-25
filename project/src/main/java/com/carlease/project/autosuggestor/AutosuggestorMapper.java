@@ -7,6 +7,6 @@ import org.mapstruct.factory.Mappers;
 public interface AutosuggestorMapper {
 
     AutosuggestorMapper INSTANCE = Mappers.getMapper( AutosuggestorMapper.class );
-    AutosuggestorDto autosuggestorToAutosuggestorDto(Autosuggestor autosuggestor);
-    Autosuggestor autosuggestorDtoToAutosuggestor(AutosuggestorDto autosuggestorDto);
+    AutosuggestorDto toDto(Autosuggestor autosuggestor);
+    Autosuggestor toEntity(AutosuggestorDto autosuggestorDto);
 }

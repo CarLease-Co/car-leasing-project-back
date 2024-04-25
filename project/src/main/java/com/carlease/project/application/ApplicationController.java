@@ -1,5 +1,6 @@
 package com.carlease.project.application;
 
+import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,27 +18,27 @@ public class ApplicationController {
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<Application>> getApplications() {
-        List<Application> list = applicationService.findAll();
+    ResponseEntity<List<ApplicationFormDto>> getApplications() {
+        List<ApplicationFormDto> list = applicationService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Application> getApplication(@PathVariable("id") long id) {
+    ResponseEntity<ApplicationFormDto> getApplication(@PathVariable("id") long id) throws ApplicationNotFoundException {
 
-        Application application = applicationService.findById(id);
-        return new ResponseEntity<>(application, HttpStatus.OK);
+        ApplicationFormDto applicationDto = applicationService.findById(id);
+        return new ResponseEntity<>(applicationDto, HttpStatus.OK);
     }
 
     @GetMapping("/user/{id}")
-    ResponseEntity<List<Application>> getApplicationsByUserId(@PathVariable("user_id") long id) {
-        List<Application> applications = applicationService.findAllByUserId(id);
+    ResponseEntity<List<ApplicationFormDto>> getApplicationsByUserId(@PathVariable("user_id") long id) {
+        List<ApplicationFormDto> applications = applicationService.findAllByUserId(id);
         return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
     @PostMapping
-    ResponseEntity<Application> createApplication(@RequestBody ApplicationFormDto applicationFormDto) {
-        Application newApplication = applicationService.create(applicationFormDto);
+    ResponseEntity<ApplicationFormDto> createApplication(@RequestBody ApplicationFormDto applicationFormDto) {
+        ApplicationFormDto newApplication = applicationService.create(applicationFormDto);
         applicationService.evaluation(newApplication);
         return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
     }

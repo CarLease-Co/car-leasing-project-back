@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 @Data
 public class ApplicationFormDto {
+    private long id;
     private long userId;
     private BigDecimal monthlyIncome;
     private BigDecimal financialObligations;

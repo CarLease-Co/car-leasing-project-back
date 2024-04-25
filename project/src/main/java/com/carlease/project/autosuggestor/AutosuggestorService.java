@@ -1,23 +1,25 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.application.ApplicationFormDto;
 import com.carlease.project.interestrate.InterestRate;
+import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface AutosuggestorService {
-    Autosuggestor findById(long id);
+    AutosuggestorDto findById(long id) throws AutosuggestorNotFoundException;
 
-    double calculateInterestRate(Application application, InterestRate interestRate);
+    double calculateInterestRate(ApplicationFormDto applicationDto, InterestRate interestRate);
 
-    List<Autosuggestor> findAll();
+    List<AutosuggestorDto> findAll();
 
-    BigDecimal calculateTotalLoanPrice(Application application, double interestRate);
+    BigDecimal calculateTotalLoanPrice(ApplicationFormDto applicationDto, double interestRate);
 
-    BigDecimal calculateAverageCarPriceDependingOnYear(Application application, int currentYear);
+    BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto, int currentYear);
 
     CarPrice carPrice (BigDecimal price);
 
-    Integer autosuggest(Application application, CarPrice price, InterestRate interestRate);
+    Integer autosuggest(ApplicationFormDto applicationDto, CarPrice price, InterestRate interestRate);
 }

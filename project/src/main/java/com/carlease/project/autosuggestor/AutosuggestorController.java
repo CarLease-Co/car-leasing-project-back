@@ -1,6 +1,7 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.application.ApplicationFormDto;
 import com.carlease.project.application.ApplicationServiceImpl;
 import com.carlease.project.interestrate.InterestRate;
 import lombok.AllArgsConstructor;
@@ -21,15 +22,9 @@ public class AutosuggestorController {
     @Autowired
     private final ApplicationServiceImpl applicationService;
 
-    @PostMapping("/{applicationId}/{interestRate}/{rate}")
-    public Integer evaluate(@PathVariable Long applicationId, @PathVariable InterestRate interestRate) {
-        Application existingApplication = applicationService.findById(applicationId);
-        return autosuggestorService.autosuggest(existingApplication, autosuggestorService.carPrice(BigDecimal.valueOf(10000)), interestRate);
-    }
-
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<Autosuggestor>> getAutosuggestions() {
-        List<Autosuggestor> list = autosuggestorService.findAll();
+    ResponseEntity<List<AutosuggestorDto>> getAutosuggestions() {
+        List<AutosuggestorDto> list = autosuggestorService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

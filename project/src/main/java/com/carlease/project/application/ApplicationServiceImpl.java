@@ -13,6 +13,7 @@ import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
+import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,58 +47,61 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<Application> findAll() {
-        return applicationRepository.findAll();
+    public List<ApplicationFormDto> findAll() {
+        List<Application> applications = applicationRepository.findAll();
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
     }
 
     @Override
-    public Application findById(long id) {
-        return applicationRepository.findById(id).orElseThrow();
+    public ApplicationFormDto findById(long id) throws ApplicationNotFoundException {
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException("id"));
+        return applicationMapper.toDto(application);
     }
 
     @Override
-    public Application create(ApplicationFormDto applicationFormDto) {
+    public ApplicationFormDto create(ApplicationFormDto applicationFormDto) {
+        Application application = applicationMapper.toEntity(applicationFormDto);
 
-        Application application = applicationMapper.applicationFormDtoToApplication(applicationFormDto);
+        Car car = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
 
-        String carMake = applicationFormDto.getCarMake();
-        String carModel = applicationFormDto.getCarModel();
-
-        Car car = carRepository.findByMakeAndModel(carMake, carModel);
-        User user = userRepository.findById(applicationFormDto.getUserId()).orElseThrow(
-                () -> new RuntimeException("could not create user"));
+        User user = userRepository.findById(applicationFormDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("Could not find user"));
 
         application.setCar(car);
         application.setUser(user);
 
         application.setStatus(applicationFormDto.getStatus());
 
-        return applicationRepository.save(application);
+        Application savedApplication = applicationRepository.save(application);
+        return applicationMapper.toDto(savedApplication);
     }
 
-    @Override
-    public List<Application> findAllByUserId(long id) {
-        return applicationRepository.findApplicationsByUserUserId(id);
+      @Override
+    public List<ApplicationFormDto> findAllByUserId(long id) {
+        List<Application> applications = applicationRepository.findApplicationsByUserUserId(id);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
     }
 
-    public Integer evaluation(Application application) {
+    public void evaluation(ApplicationFormDto applicationDto) {
 
         InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 
-        CarPrice price = autosuggestorServiceImpl.carPrice(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(application, application.getManufactureDate()));
-        if (application.getStatus() == ApplicationStatus.PENDING) {
+        CarPrice price = autosuggestorServiceImpl.carPrice(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto, applicationDto.getManufactureDate()));
+        if (applicationDto.getStatus() == ApplicationStatus.PENDING) {
 
-            Integer calculation = autosuggestorServiceImpl.autosuggest(application, price, interestRate);
+            Integer calculation = autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
 
             Autosuggestor autosuggestor = new Autosuggestor();
-            autosuggestor.setApplication(application);
+            autosuggestor.setApplication(applicationMapper.toEntity(applicationDto));
             autosuggestor.setEvaluation(calculation);
             autosuggestorRepository.save(autosuggestor);
 
-            return calculation;
         } else {
-            return null;
         }
     }
 
