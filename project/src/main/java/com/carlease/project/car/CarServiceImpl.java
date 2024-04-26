@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CarServiceImpl implements CarService {
@@ -40,13 +39,13 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public CarDto updatePrice(long id, CarDto carDto) throws CarNotFoundException {
-        Car car = carMapper.carDtoToCar(carDto);
+    public CarDto updatePrice(CarDto carDto) throws CarNotFoundException {
+        String make = carDto.getMake();
+        String model = carDto.getModel();
+        Car existingCar = carRepository.findByMakeAndModel(make, model);
 
-        Car existingCar = carRepository.findById(id).orElseThrow(() -> new CarNotFoundException("id"));
-
-        existingCar.setPriceFrom(car.getPriceFrom());
-        existingCar.setPriceTo(car.getPriceTo());
+        existingCar.setPriceFrom(carDto.getPriceFrom());
+        existingCar.setPriceTo(carDto.getPriceTo());
         carRepository.save(existingCar);
         return carMapper.carToCarDto(existingCar);
     }
