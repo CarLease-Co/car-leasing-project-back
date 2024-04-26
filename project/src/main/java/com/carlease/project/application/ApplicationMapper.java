@@ -1,10 +1,7 @@
 package com.carlease.project.application;
 
-import com.carlease.project.car.Car;
-import com.carlease.project.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")

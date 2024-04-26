@@ -1,10 +1,10 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
-import com.carlease.project.autosuggestor.AutosuggestorServiceImpl;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +15,11 @@ import java.util.List;
 @RequestMapping("api/v1/applications")
 public class ApplicationController {
 
-    private final AutosuggestorServiceImpl autosuggestorServiceImpl;
     public ApplicationService applicationService;
 
-    public ApplicationController(ApplicationService applicationService, AutosuggestorServiceImpl autosuggestorServiceImpl) {
+    @Autowired
+    public ApplicationController(ApplicationService applicationService) {
         this.applicationService = applicationService;
-        this.autosuggestorServiceImpl = autosuggestorServiceImpl;
     }
 
     @GetMapping(produces = "application/json")

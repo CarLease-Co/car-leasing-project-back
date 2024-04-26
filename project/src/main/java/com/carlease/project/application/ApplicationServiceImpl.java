@@ -26,27 +26,24 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final CarRepository carRepository;
     private final UserRepository userRepository;
     private final InterestRateService interestRateService;
-
     private final InterestRateMapper interestRateMapper;
+    private final AutosuggestorServiceImpl autosuggestorServiceImpl;
+    private final AutosuggestorRepository autosuggestorRepository;
+    private final ApplicationMapper applicationMapper;
+    private final AutosuggestorMapper autosuggestorMapper;
 
     @Autowired
-    private AutosuggestorServiceImpl autosuggestorServiceImpl;
-    @Autowired
-    private AutosuggestorRepository autosuggestorRepository;
-
-    @Autowired
-    private ApplicationMapper applicationMapper;
-
-    @Autowired
-    private AutosuggestorMapper autosuggestorMapper;
-
     public ApplicationServiceImpl(ApplicationRepository applicationRepository,
-                                  CarRepository carRepository, UserRepository userRepository, InterestRateService interestRateService, InterestRateMapper interestRateMapper) {
+                                  CarRepository carRepository, UserRepository userRepository, InterestRateService interestRateService, InterestRateMapper interestRateMapper, AutosuggestorServiceImpl autosuggestorServiceImpl, AutosuggestorRepository autosuggestorRepository, ApplicationMapper applicationMapper, AutosuggestorMapper autosuggestorMapper) {
         this.applicationRepository = applicationRepository;
         this.carRepository = carRepository;
         this.userRepository = userRepository;
         this.interestRateService = interestRateService;
         this.interestRateMapper = interestRateMapper;
+        this.autosuggestorServiceImpl = autosuggestorServiceImpl;
+        this.autosuggestorRepository = autosuggestorRepository;
+        this.applicationMapper = applicationMapper;
+        this.autosuggestorMapper = autosuggestorMapper;
     }
 
     @Override
