@@ -1,6 +1,5 @@
 package com.carlease.project.autosuggestor;
 
-import com.carlease.project.application.Application;
 import com.carlease.project.application.ApplicationFormDto;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
@@ -19,7 +18,7 @@ public interface AutosuggestorService {
 
     BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto, int currentYear);
 
-    CarPrice carPrice (BigDecimal price);
+    CarPrice carPrice(BigDecimal price);
 
     Integer autosuggest(ApplicationFormDto applicationDto, CarPrice price, InterestRate interestRate);
 }

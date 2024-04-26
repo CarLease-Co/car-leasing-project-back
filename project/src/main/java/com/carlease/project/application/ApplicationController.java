@@ -1,8 +1,6 @@
 package com.carlease.project.application;
 
-import com.carlease.project.autosuggestor.Autosuggestor;
 import com.carlease.project.autosuggestor.AutosuggestorDto;
-import com.carlease.project.autosuggestor.AutosuggestorServiceImpl;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,7 @@ public class ApplicationController {
     public ApplicationService applicationService;
 
     @Autowired
-    public ApplicationController(ApplicationService applicationService, AutosuggestorServiceImpl autosuggestorServiceImpl) {
+    public ApplicationController(ApplicationService applicationService) {
         this.applicationService = applicationService;
     }
 
