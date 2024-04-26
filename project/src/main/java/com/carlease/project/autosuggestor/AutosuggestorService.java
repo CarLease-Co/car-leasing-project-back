@@ -22,5 +22,4 @@ public interface AutosuggestorService {
     CarPrice carPrice (BigDecimal price);
 
     Integer autosuggest(ApplicationFormDto applicationDto, CarPrice price, InterestRate interestRate);
-
 }

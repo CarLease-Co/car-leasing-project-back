@@ -3,10 +3,12 @@ package com.carlease.project.autosuggestor;
 import com.carlease.project.application.Application;
 import com.carlease.project.application.ApplicationFormDto;
 import com.carlease.project.application.ApplicationMapper;
+import com.carlease.project.application.ApplicationRepository;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.user.exceptions.CarNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
 
     private final AutosuggestorRepository autosuggestorRepository;
     private final CarRepository carRepository;
+    private final ApplicationRepository applicationRepository;
     @Autowired
     private AutosuggestorMapper autosuggestorMapper;
 
@@ -26,9 +29,10 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     private ApplicationMapper applicationMapper;
 
 
-    public AutosuggestorServiceImpl(AutosuggestorRepository autosuggestorRepository, CarRepository carRepository) {
+    public AutosuggestorServiceImpl(AutosuggestorRepository autosuggestorRepository, CarRepository carRepository, ApplicationRepository applicationRepository) {
         this.autosuggestorRepository = autosuggestorRepository;
         this.carRepository = carRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override

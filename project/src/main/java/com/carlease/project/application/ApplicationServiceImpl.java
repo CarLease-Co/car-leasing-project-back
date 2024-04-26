@@ -1,9 +1,6 @@
 package com.carlease.project.application;
 
-import com.carlease.project.autosuggestor.Autosuggestor;
-import com.carlease.project.autosuggestor.AutosuggestorRepository;
-import com.carlease.project.autosuggestor.AutosuggestorServiceImpl;
-import com.carlease.project.autosuggestor.CarPrice;
+import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
@@ -14,6 +11,7 @@ import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
+import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +34,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private ApplicationMapper applicationMapper;
+
+    @Autowired
+    private AutosuggestorMapper autosuggestorMapper;
 
     public ApplicationServiceImpl(ApplicationRepository applicationRepository,
                                   CarRepository carRepository, UserRepository userRepository, InterestRateService interestRateService, InterestRateMapper interestRateMapper) {
@@ -78,7 +79,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationMapper.toDto(savedApplication);
     }
 
-      @Override
+    @Override
     public List<ApplicationFormDto> findAllByUserId(long id) {
         List<Application> applications = applicationRepository.findApplicationsByUserUserId(id);
         return applications.stream()
@@ -95,14 +96,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (applicationDto.getStatus() == ApplicationStatus.PENDING) {
 
             Integer calculation = autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
-
-            Autosuggestor autosuggestor = new Autosuggestor();
-            autosuggestor.setApplication(applicationMapper.toEntity(applicationDto));
-            autosuggestor.setEvaluation(calculation);
-            autosuggestorRepository.save(autosuggestor);
-
-        } else {
         }
     }
 
+    @Override
+    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException {
+        Application application = applicationRepository.findById(id).orElse(null);
+        if (application == null) {
+            return null;
+        }
+        Autosuggestor autosuggestion = autosuggestorRepository.findByApplicationId(id);
+        return autosuggestorMapper.toDto(autosuggestion);
+    }
 }
