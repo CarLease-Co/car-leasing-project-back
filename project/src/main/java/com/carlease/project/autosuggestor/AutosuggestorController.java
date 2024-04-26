@@ -1,19 +1,14 @@
 package com.carlease.project.autosuggestor;
 
-import com.carlease.project.application.Application;
-import com.carlease.project.application.ApplicationFormDto;
 import com.carlease.project.application.ApplicationServiceImpl;
-import com.carlease.project.car.CarDto;
-import com.carlease.project.interestrate.InterestRate;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.user.exceptions.CarNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor

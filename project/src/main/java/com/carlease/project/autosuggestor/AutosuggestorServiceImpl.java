@@ -106,7 +106,7 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
         return carPrice;
     }
 
-    public CarPrice carPrice(BigDecimal price) {
+    public CarPrice calculateAvgCarPriceRange(BigDecimal price) {
         BigDecimal value = price.multiply(BigDecimal.valueOf(PERCENT));
         return new CarPrice(price, price.subtract(value), price.add(value));
     }

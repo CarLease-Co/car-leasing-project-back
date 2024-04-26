@@ -12,10 +12,12 @@ import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
@@ -62,13 +64,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto create(ApplicationFormDto applicationFormDto) {
+    public ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException {
         Application application = applicationMapper.toEntity(applicationFormDto);
 
         Car car = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
 
         User user = userRepository.findById(applicationFormDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("Could not find user"));
+                .orElseThrow(() -> new UserNotFoundException(applicationFormDto.getUserId()));
 
         application.setCar(car);
         application.setUser(user);
@@ -92,17 +94,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 
-        CarPrice price = autosuggestorServiceImpl.carPrice(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto, applicationDto.getManufactureDate()));
-        if (applicationDto.getStatus() == ApplicationStatus.PENDING) {
-
-            Integer calculation = autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
+        CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto, applicationDto.getManufactureDate()));
+        if (ApplicationStatus.PENDING.equals(applicationDto.getStatus())) {
+            autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
         }
     }
 
     @Override
     public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException {
-        Application application = applicationRepository.findById(id).orElse(null);
-        if (application == null) {
+        Optional<Application> application = applicationRepository.findById(id).orElse(Optional.empty());
+        if (!application.isPresent()) {
             return null;
         }
         Autosuggestor autosuggestion = autosuggestorRepository.findByApplicationId(id);
