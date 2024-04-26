@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "autosuggestors")
 public class Autosuggestor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -24,10 +25,6 @@ public class Autosuggestor {
 
     private int evaluation;
 
-    private double interestRate; // palukanu norma
-
-    private int currentYear = LocalDate.now().getYear();
-
-    private double rate; // koeficientas kiek proc menesiniu islaidu nevirsyti
+    private int currentYear;
 
 }
