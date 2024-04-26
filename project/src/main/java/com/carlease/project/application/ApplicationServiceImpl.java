@@ -99,11 +99,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException {
-        Optional<Application> application = applicationRepository.findById(id).orElse(Optional.empty());
-        if (!application.isPresent()) {
-            return null;
+        Optional<Application> applicationOptional = applicationRepository.findById(id);
+        if (applicationOptional.isEmpty()) {
+            throw new AutosuggestorNotFoundException("Application not found with ID: " + id);
         }
-        Autosuggestor autosuggestion = autosuggestorRepository.findByApplicationId(id);
-        return autosuggestorMapper.toDto(autosuggestion);
+        Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
+        return autosuggestorMapper.toDto(autosuggestor);
     }
+
 }

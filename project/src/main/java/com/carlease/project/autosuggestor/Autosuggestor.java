@@ -25,6 +25,6 @@ public class Autosuggestor {
 
     private int evaluation;
 
-    private int currentYear = LocalDate.now().getYear();
+    private int currentYear;
 
 }
