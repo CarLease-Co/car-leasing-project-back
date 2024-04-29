@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -59,13 +60,16 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
 
         int loanDuration = applicationDto.getLoanDuration();
         BigDecimal loanAmount = applicationDto.getLoanAmount();
-        double interestRateValue = interestRate / 100 + 1;
-        BigDecimal totalInterestValue = BigDecimal.valueOf(Math.pow(interestRateValue, loanDuration));
-        return loanAmount.multiply(totalInterestValue);
+        Double loanInYears = (double) loanDuration / 12;
+        double interestRateValue = interestRate + 1;
+        BigDecimal totalInterestValue = BigDecimal.valueOf(Math.pow(interestRateValue, loanInYears));
+        BigDecimal totalPrice = loanAmount.multiply(totalInterestValue).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return totalPrice;
     }
 
-    public BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto, int currentYear) {
+    public BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto) {
         BigDecimal carPrice;
+        int currentYear = LocalDate.now().getYear();
 
         Car car = carRepository.findByMakeAndModel(applicationDto.getCarMake(), applicationDto.getCarModel());
         BigDecimal maxPrice = car.getPriceTo();
@@ -87,7 +91,7 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
 
         BigDecimal priceChangePerYearUpToThirtyYears = carPriceUpToTwentyYears.subtract(carPriceUpToThirtyYears).divide(BigDecimal.TEN);
 
-        int carOld = currentYear = carYear;
+        int carOld = currentYear - carYear;
 
         if (carYear > currentYear - 10) {
             carPrice = maxPrice.subtract(BigDecimal.valueOf(carOld).multiply(priceChangePerYearUpToTenYears));
@@ -107,12 +111,11 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     public Integer loanAmountEvaluation(CarPrice price, BigDecimal loanAmount) {
+        BigDecimal evaluationRange = price.getAvgMax().subtract(price.getAvgPrice());
         if (loanAmount.compareTo(price.getAvgMax()) == 1) {
-            BigDecimal evaluationRange = price.getAvgMax().subtract(price.getAvgPrice());
             BigDecimal loanEvaluationRange = loanAmount.subtract(price.getAvgPrice());
             return -loanEvaluationRange.divide(evaluationRange, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).intValue();
         } else if (price.getAvgMin().compareTo(loanAmount) == 1) {
-            BigDecimal evaluationRange = price.getAvgPrice().subtract(price.getAvgMin());
             BigDecimal loanEvaluationRange = price.getAvgPrice().subtract(loanAmount);
             return loanEvaluationRange.divide(evaluationRange, 2, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.ONE).intValue();
         }
@@ -120,9 +123,10 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     public Integer paymentEvaluation(ApplicationFormDto applicationDto, double interestRate, double rate) {
+        double interestRateValue = rate + 1;
         BigDecimal monthlyPayment = calculateTotalLoanPrice(applicationDto, interestRate).divide(BigDecimal.valueOf(applicationDto.getLoanDuration()), 2, BigDecimal.ROUND_HALF_UP);
 
-        BigDecimal maxPossibleObligations = applicationDto.getMonthlyIncome().subtract(applicationDto.getFinancialObligations().multiply(BigDecimal.valueOf(rate)));
+        BigDecimal maxPossibleObligations = (applicationDto.getMonthlyIncome().subtract(applicationDto.getFinancialObligations()).multiply(BigDecimal.valueOf(rate)));
 
         if (maxPossibleObligations.compareTo(monthlyPayment) == 1) {
             return BigDecimal.ONE.subtract(monthlyPayment.divide(maxPossibleObligations, 2, BigDecimal.ROUND_HALF_UP)).multiply(BigDecimal.TEN).intValue();
