@@ -6,7 +6,7 @@ import com.carlease.project.application.ApplicationRepository;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.interestrate.InterestRate;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package com.carlease.project.car;
 
-import com.carlease.project.user.exceptions.CarNotFoundException;
+import com.carlease.project.exceptions.CarNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
