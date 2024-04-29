@@ -1,6 +1,7 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
@@ -22,11 +23,11 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @GetMapping(produces = "application/json")
-    ResponseEntity<List<ApplicationFormDto>> getApplications() {
-        List<ApplicationFormDto> list = applicationService.findAll();
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
+//    @GetMapping(produces = "application/json")
+//    ResponseEntity<List<ApplicationFormDto>> getApplications() {
+//        List<ApplicationFormDto> list = applicationService.findAll();
+//        return new ResponseEntity<>(list, HttpStatus.OK);
+//    }
 
     @GetMapping("/{id}")
     ResponseEntity<ApplicationFormDto> getApplication(@PathVariable("id") long id) throws ApplicationNotFoundException {
@@ -39,6 +40,12 @@ public class ApplicationController {
     ResponseEntity<List<ApplicationFormDto>> getApplicationsByUserId(@PathVariable("userId") long id) {
         List<ApplicationFormDto> applications = applicationService.findAllByUserId(id);
         return new ResponseEntity<>(applications, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ApplicationFormDto>> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
+        List<ApplicationFormDto> applicationDTOs = applicationService.getApplicationsByUser(userId, role);
+        return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
     }
 
     @PostMapping

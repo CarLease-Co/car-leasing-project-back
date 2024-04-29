@@ -4,6 +4,7 @@ import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.interestrate.InterestRateDTO;
 import com.carlease.project.interestrate.InterestRateMapper;
@@ -84,6 +85,36 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applications.stream()
                 .map(applicationMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatus(ApplicationStatus status) {
+        List<Application> applications = applicationRepository.findByStatus(status);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatusIn(List<ApplicationStatus> statuses) {
+        List<Application> applications = applicationRepository.findByStatusIn(statuses);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) {
+        switch (role) {
+            case APPLICANT:
+                return findAllByUserId(id);
+            case REVIEWER:
+                return findAllByStatus(ApplicationStatus.PENDING);
+            case APPROVER:
+                return findAllByStatusIn(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
+            default:
+                return null;
+        }
     }
 
     public void evaluation(ApplicationFormDto applicationDto) {
