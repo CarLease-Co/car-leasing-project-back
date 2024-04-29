@@ -10,6 +10,7 @@ import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
+import com.carlease.project.user.exceptions.ApplicationNotDraftException;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
@@ -105,6 +106,35 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
         return autosuggestorMapper.toDto(autosuggestor);
+    }
+
+    @Override
+    public ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto) throws ApplicationNotFoundException, ApplicationNotDraftException {
+        Optional<Application> optionalApplication = applicationRepository.findById(id);
+
+        if (optionalApplication.isPresent()) {
+            Application existingApplication = optionalApplication.get();
+
+            if (ApplicationStatus.DRAFT.equals(existingApplication.getStatus())) {
+
+                existingApplication.setMonthlyIncome(applicationFormDto.getMonthlyIncome());
+                existingApplication.setFinancialObligations(applicationFormDto.getFinancialObligations());
+                existingApplication.setManufactureDate(applicationFormDto.getManufactureDate());
+                existingApplication.setTextExplanation(applicationFormDto.getTextExplanation());
+                existingApplication.setLoanDuration(applicationFormDto.getLoanDuration());
+                existingApplication.setLoanAmount(applicationFormDto.getLoanAmount());
+                existingApplication.setStatus(applicationFormDto.getStatus());
+
+                Car selectedCar = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
+                existingApplication.setCar(selectedCar);
+                applicationRepository.save(existingApplication);
+                return applicationMapper.toDto(existingApplication);
+            } else {
+                throw new ApplicationNotDraftException("Cannot update application as status is not DRAFT");
+            }
+        } else {
+            throw new ApplicationNotFoundException("Application not found with ID: " + applicationFormDto.getId());
+        }
     }
 
 }

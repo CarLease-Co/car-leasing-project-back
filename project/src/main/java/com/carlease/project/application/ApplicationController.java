@@ -1,9 +1,11 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
+import com.carlease.project.user.exceptions.ApplicationNotDraftException;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +54,11 @@ public class ApplicationController {
     ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException {
         AutosuggestorDto autosuggestion = applicationService.findAutosuggestorByApplicationId(id);
         return new ResponseEntity<>(autosuggestion, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApplicationFormDto> update(@PathVariable Long id, @Valid @RequestBody ApplicationFormDto applicationDto) throws ApplicationNotFoundException, ApplicationNotDraftException, ApplicationNotDraftException {
+        ApplicationFormDto updatedApplication = applicationService.update(id, applicationDto);
+        return ResponseEntity.ok(updatedApplication);
     }
 }
