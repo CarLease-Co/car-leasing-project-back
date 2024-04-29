@@ -49,8 +49,17 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}/autosuggestion")
-    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException {
+    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException, ApplicationNotFoundException {
         AutosuggestorDto autosuggestion = applicationService.findAutosuggestorByApplicationId(id);
         return new ResponseEntity<>(autosuggestion, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> deleteApplication(@PathVariable("id") long id) throws ApplicationNotFoundException {
+        boolean applicationDeleted = applicationService.deleteById(id);
+        if (applicationDeleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

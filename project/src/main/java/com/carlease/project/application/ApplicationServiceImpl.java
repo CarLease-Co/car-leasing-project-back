@@ -98,13 +98,30 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException {
+    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws ApplicationNotFoundException {
         Optional<Application> applicationOptional = applicationRepository.findById(id);
         if (applicationOptional.isEmpty()) {
-            throw new AutosuggestorNotFoundException("Application not found with ID: " + id);
+            throw new ApplicationNotFoundException("Application not found with ID: " + id);
         }
         Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
         return autosuggestorMapper.toDto(autosuggestor);
     }
 
+    @Override
+    public boolean deleteById(long id) {
+        Optional<Application> optionalApplication = applicationRepository.findById(id);
+
+        if (optionalApplication.isPresent()) {
+            Application application = optionalApplication.get();
+
+            if (ApplicationStatus.DRAFT.equals(application.getStatus())) {
+                applicationRepository.deleteById(id);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }

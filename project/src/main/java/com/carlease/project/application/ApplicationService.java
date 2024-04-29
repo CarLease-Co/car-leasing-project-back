@@ -9,10 +9,16 @@ import java.util.List;
 
 public interface ApplicationService {
     List<ApplicationFormDto> findAll();
-    ApplicationFormDto findById(long id) throws ApplicationNotFoundException;
-    ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException;
-    void evaluation(ApplicationFormDto applicationDto);
-    List<ApplicationFormDto> findAllByUserId(long id);
-    AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException;
 
+    ApplicationFormDto findById(long id) throws ApplicationNotFoundException;
+
+    ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException;
+
+    void evaluation(ApplicationFormDto applicationDto);
+
+    List<ApplicationFormDto> findAllByUserId(long id);
+
+    AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException, ApplicationNotFoundException;
+
+    boolean deleteById(long id) throws ApplicationNotFoundException;
 }
