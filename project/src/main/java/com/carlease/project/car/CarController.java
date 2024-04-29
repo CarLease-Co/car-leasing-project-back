@@ -38,10 +38,10 @@ public class CarController {
         return new ResponseEntity<>(models, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<CarDto> updateCarPrices(@PathVariable Long id, @RequestBody CarDto carDto) {
+    @PatchMapping("/")
+    public ResponseEntity<CarDto> updateCarPrices(@RequestBody CarDto carDto) {
         try {
-            CarDto updatedCar = carServiceImpl.updatePrice(id, carDto);
+            CarDto updatedCar = carServiceImpl.updatePrice(carDto);
             return ResponseEntity.ok(updatedCar);
         } catch (CarNotFoundException e) {
             return ResponseEntity.notFound().build();

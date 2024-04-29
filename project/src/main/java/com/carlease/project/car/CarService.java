@@ -11,5 +11,5 @@ public interface CarService {
 
     List<String> findModels(String make);
 
-    CarDto updatePrice(long id, CarDto carDto) throws CarNotFoundException;
+    CarDto updatePrice(CarDto carDto) throws CarNotFoundException;
 }
