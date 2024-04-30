@@ -1,4 +1,4 @@
-package com.carlease.project.user.exceptions;
+package com.carlease.project.exceptions;
 
 public class UserException extends Exception{
 

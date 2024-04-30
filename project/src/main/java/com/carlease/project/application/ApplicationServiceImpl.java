@@ -4,15 +4,17 @@ import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
+import com.carlease.project.enums.UserRole;
+import com.carlease.project.exceptions.UserException;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.interestrate.InterestRateDTO;
 import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
-import com.carlease.project.user.exceptions.ApplicationNotFoundException;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -86,12 +88,49 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .toList();
     }
 
+    @Override
+    public List<ApplicationFormDto> findAllByStatus(ApplicationStatus status) {
+        List<Application> applications = applicationRepository.findByStatus(status);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses) {
+        List<Application> applications = applicationRepository.findByStatuses(statuses);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException {
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+
+        if (!user.getRole().equals(role)) {
+            throw new UserException("User role does not match the provided role");
+        }
+
+        switch (role) {
+            case APPLICANT:
+                return findAllByUserId(id);
+            case REVIEWER:
+                return findAllByStatus(ApplicationStatus.PENDING);
+            case APPROVER:
+                return findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
+            default:
+                return null;
+        }
+    }
+
     public void evaluation(ApplicationFormDto applicationDto) {
 
         InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 
-        CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto, applicationDto.getManufactureDate()));
+        CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto));
         if (ApplicationStatus.PENDING.equals(applicationDto.getStatus())) {
             autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
         }
