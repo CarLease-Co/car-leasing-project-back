@@ -1,6 +1,6 @@
 package com.carlease.project.car;
 
-import com.carlease.project.user.exceptions.CarNotFoundException;
+import com.carlease.project.exceptions.CarNotFoundException;
 
 import java.util.List;
 

@@ -4,16 +4,19 @@ import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
+import com.carlease.project.enums.UserRole;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
+import com.carlease.project.exceptions.UserException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.interestrate.InterestRateDTO;
 import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
-import com.carlease.project.user.exceptions.ApplicationNotDraftException;
-import com.carlease.project.user.exceptions.ApplicationNotFoundException;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -80,11 +83,57 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public ApplicationFormDto updateStatus(long id, ApplicationStatus status) throws ApplicationNotFoundException {
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException("id"));
+        application.setStatus(status);
+        Application savedApplication = applicationRepository.save(application);
+        return applicationMapper.toDto(savedApplication);
+    }
+
+    @Override
     public List<ApplicationFormDto> findAllByUserId(long id) {
         List<Application> applications = applicationRepository.findApplicationsByUserUserId(id);
         return applications.stream()
                 .map(applicationMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatus(ApplicationStatus status) {
+        List<Application> applications = applicationRepository.findByStatus(status);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses) {
+        List<Application> applications = applicationRepository.findByStatusIn(statuses);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException {
+        validateUserRole(id, role);
+
+        return switch (role) {
+            case APPLICANT -> findAllByUserId(id);
+            case REVIEWER -> findAllByStatus(ApplicationStatus.PENDING);
+            case APPROVER ->
+                    findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
+            default -> null;
+        };
+    }
+
+    private void validateUserRole(long id, UserRole role) throws UserException {
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+
+        if (!user.getRole().equals(role)) {
+            throw new UserException("User role does not match the provided role");
+        }
     }
 
     public void evaluation(ApplicationFormDto applicationDto) {
@@ -109,7 +158,25 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto) throws ApplicationNotFoundException, ApplicationNotDraftException {
+    public boolean deleteById(long applicationId, long userId, UserRole role) throws UserException {
+        validateUserRole(userId, role);
+
+        Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
+
+        if (optionalApplication.isPresent()) {
+            Application application = optionalApplication.get();
+            if (application.getUser().getUserId() != userId) {
+                return false;
+            }
+            if (UserRole.APPLICANT.equals(application.getUser().getRole()) && ApplicationStatus.DRAFT.equals(application.getStatus())) {
+                applicationRepository.deleteById(applicationId);
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
+    public ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto) throws ApplicationNotFoundException, ApplicationNotDraftException, com.carlease.project.user.exceptions.ApplicationNotDraftException {
         Optional<Application> optionalApplication = applicationRepository.findById(id);
 
         if (optionalApplication.isPresent()) {
@@ -130,7 +197,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 applicationRepository.save(existingApplication);
                 return applicationMapper.toDto(existingApplication);
             } else {
-                throw new ApplicationNotDraftException("Cannot update application as status is not DRAFT");
+                throw new com.carlease.project.user.exceptions.ApplicationNotDraftException("Cannot update application as status is not DRAFT");
             }
         } else {
             throw new ApplicationNotFoundException("Application not found with ID: " + applicationFormDto.getId());
