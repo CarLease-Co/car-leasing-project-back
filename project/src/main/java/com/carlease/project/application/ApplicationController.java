@@ -79,8 +79,8 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteApplication(@PathVariable("id") long id) throws ApplicationNotFoundException {
-        boolean applicationDeleted = applicationService.deleteById(id);
+    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId")long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
+        boolean applicationDeleted = applicationService.deleteById(applicationId, userId, role);
         if (applicationDeleted) {
             return ResponseEntity.noContent().build();
         }

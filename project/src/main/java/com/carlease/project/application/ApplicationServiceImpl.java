@@ -14,6 +14,9 @@ import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -113,12 +116,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException {
-        Optional<User> userOptional = userRepository.findById(id);
-        User user = userOptional.get();
-
-        if (!user.getRole().equals(role)) {
-            throw new UserException("User role does not match the provided role");
-        }
+        validateUserRole(id, role);
 
         return switch (role) {
             case APPLICANT -> findAllByUserId(id);
@@ -127,6 +125,15 @@ public class ApplicationServiceImpl implements ApplicationService {
                     findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
             default -> null;
         };
+    }
+
+    private void validateUserRole(long id, UserRole role) throws UserException {
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+
+        if (!user.getRole().equals(role)) {
+            throw new UserException("User role does not match the provided role");
+        }
     }
 
     public void evaluation(ApplicationFormDto applicationDto) {
@@ -151,20 +158,21 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public boolean deleteById(long id) {
-        Optional<Application> optionalApplication = applicationRepository.findById(id);
+    public boolean deleteById(long applicationId, long userId, UserRole role) throws UserException {
+        validateUserRole(userId, role);
+
+        Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
 
         if (optionalApplication.isPresent()) {
             Application application = optionalApplication.get();
-
-            if (ApplicationStatus.DRAFT.equals(application.getStatus())) {
-                applicationRepository.deleteById(id);
-                return true;
-            } else {
+            if (application.getUser().getUserId() != userId) {
                 return false;
             }
-        } else {
-            return false;
+            if (UserRole.APPLICANT.equals(application.getUser().getRole()) && ApplicationStatus.DRAFT.equals(application.getStatus())) {
+                applicationRepository.deleteById(applicationId);
+                return true;
+            }
         }
+        return false;
     }
 }
