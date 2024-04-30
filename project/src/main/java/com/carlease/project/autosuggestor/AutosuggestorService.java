@@ -16,7 +16,7 @@ public interface AutosuggestorService {
 
     BigDecimal calculateTotalLoanPrice(ApplicationFormDto applicationDto, double interestRate);
 
-    BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto, int currentYear);
+    BigDecimal calculateAverageCarPriceDependingOnYear(ApplicationFormDto applicationDto);
 
     CarPrice calculateAvgCarPriceRange(BigDecimal price);
 
