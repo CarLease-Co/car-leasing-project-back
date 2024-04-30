@@ -1,7 +1,7 @@
 package com.carlease.project.user;
 
-import com.carlease.project.user.exceptions.IncorrectPasswordException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.IncorrectPasswordException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

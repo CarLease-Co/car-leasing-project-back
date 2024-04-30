@@ -1,9 +1,9 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
-import com.carlease.project.user.exceptions.ApplicationNotFoundException;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.UserNotFoundException;
 
 import java.util.List;
 
