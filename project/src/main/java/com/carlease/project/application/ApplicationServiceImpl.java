@@ -13,6 +13,7 @@ import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.user.exceptions.UserException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) {
+    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException {
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+
+        if (!user.getRole().equals(role)) {
+            throw new UserException("User role does not match the provided role");
+        }
+
         switch (role) {
             case APPLICANT:
                 return findAllByUserId(id);

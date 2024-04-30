@@ -4,6 +4,7 @@ import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.user.exceptions.UserException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,11 +24,11 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-//    @GetMapping(produces = "application/json")
-//    ResponseEntity<List<ApplicationFormDto>> getApplications() {
-//        List<ApplicationFormDto> list = applicationService.findAll();
-//        return new ResponseEntity<>(list, HttpStatus.OK);
-//    }
+    @GetMapping("/all")
+    ResponseEntity<List<ApplicationFormDto>> getApplications() {
+        List<ApplicationFormDto> list = applicationService.findAll();
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
 
     @GetMapping("/{id}")
     ResponseEntity<ApplicationFormDto> getApplication(@PathVariable("id") long id) throws ApplicationNotFoundException {
@@ -43,9 +44,13 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ApplicationFormDto>> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
-        List<ApplicationFormDto> applicationDTOs = applicationService.getApplicationsByUser(userId, role);
-        return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
+    public ResponseEntity<?> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
+        try {
+            List<ApplicationFormDto> applicationDTOs = applicationService.getApplicationsByUser(userId, role);
+            return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
+        } catch (UserException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping

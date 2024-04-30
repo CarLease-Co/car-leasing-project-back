@@ -5,6 +5,7 @@ import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.user.exceptions.UserException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface ApplicationService {
 
     List<ApplicationFormDto> findAllByStatusIn(List<ApplicationStatus> statuses);
 
-    List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role);
+    List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException;
 
     void evaluation(ApplicationFormDto applicationDto);
     List<ApplicationFormDto> findAllByUserId(long id);
