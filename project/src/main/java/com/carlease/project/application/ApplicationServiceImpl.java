@@ -5,18 +5,13 @@ import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
-import com.carlease.project.exceptions.ApplicationNotFoundException;
-import com.carlease.project.exceptions.UserException;
-import com.carlease.project.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.*;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.interestrate.InterestRateDTO;
 import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
-import com.carlease.project.exceptions.ApplicationNotFoundException;
-import com.carlease.project.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -148,10 +143,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws ApplicationNotFoundException {
+    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException {
         Optional<Application> applicationOptional = applicationRepository.findById(id);
         if (applicationOptional.isEmpty()) {
-            throw new ApplicationNotFoundException("Application not found with ID: " + id);
+            throw new AutosuggestorNotFoundException("Application not found with ID: " + id);
         }
         Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
         return autosuggestorMapper.toDto(autosuggestor);
@@ -175,4 +170,42 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         return false;
     }
+
+    @Override
+    public ApplicationFormDto update(long applicationId, ApplicationFormDto applicationFormDto, long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException {
+        validateUserRole(userId, role);
+
+        Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
+
+        if (optionalApplication.isPresent()) {
+            Application existingApplication = optionalApplication.get();
+
+            if (existingApplication.getUser().getUserId() != userId) {
+                throw new UserException("User id does not match application id");
+            }
+            if (!UserRole.APPLICANT.equals(existingApplication.getUser().getRole())) {
+                throw new UserException("User role does not match the provided role");
+            }
+            if (ApplicationStatus.DRAFT.equals(existingApplication.getStatus())) {
+
+                existingApplication.setMonthlyIncome(applicationFormDto.getMonthlyIncome());
+                existingApplication.setFinancialObligations(applicationFormDto.getFinancialObligations());
+                existingApplication.setManufactureDate(applicationFormDto.getManufactureDate());
+                existingApplication.setTextExplanation(applicationFormDto.getTextExplanation());
+                existingApplication.setLoanDuration(applicationFormDto.getLoanDuration());
+                existingApplication.setLoanAmount(applicationFormDto.getLoanAmount());
+                existingApplication.setStatus(applicationFormDto.getStatus());
+
+                Car selectedCar = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
+                existingApplication.setCar(selectedCar);
+                applicationRepository.save(existingApplication);
+                return applicationMapper.toDto(existingApplication);
+            } else {
+                throw new ApplicationNotDraftException("Cannot update application as status is not DRAFT");
+            }
+        } else {
+            throw new ApplicationNotFoundException("Application not found with ID: " + applicationFormDto.getId());
+        }
+    }
+
 }

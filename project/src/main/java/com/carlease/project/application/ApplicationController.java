@@ -3,11 +3,8 @@ package com.carlease.project.application;
 import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
-import com.carlease.project.exceptions.ApplicationNotFoundException;
-import com.carlease.project.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.exceptions.UserException;
-import com.carlease.project.exceptions.UserNotFoundException;
-import jakarta.websocket.server.PathParam;
+import com.carlease.project.exceptions.*;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +23,7 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @GetMapping("/all")
+    @GetMapping(produces = "application/json")
     ResponseEntity<List<ApplicationFormDto>> getApplications() {
         List<ApplicationFormDto> list = applicationService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
@@ -79,11 +76,17 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId")long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
+    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
         boolean applicationDeleted = applicationService.deleteById(applicationId, userId, role);
         if (applicationDeleted) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException {
+        ApplicationFormDto updatedApplication = applicationService.update(applicationId, applicationDto, userId, role);
+        return ResponseEntity.ok(updatedApplication);
     }
 }
