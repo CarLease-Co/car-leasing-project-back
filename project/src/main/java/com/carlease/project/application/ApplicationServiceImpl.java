@@ -78,8 +78,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto updateStatus(long id, ApplicationStatus status) throws ApplicationNotFoundException {
-        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException("id"));
+    public ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException {
+        validateUserRole(userId, role);
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new ApplicationNotFoundException("id"));
+
         application.setStatus(status);
         Application savedApplication = applicationRepository.save(application);
         return applicationMapper.toDto(savedApplication);

@@ -22,7 +22,7 @@ public interface ApplicationService {
 
     void evaluation(ApplicationFormDto applicationDto);
 
-    ApplicationFormDto updateStatus(long id, ApplicationStatus status) throws ApplicationNotFoundException;
+    ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException;
 
     List<ApplicationFormDto> findAllByUserId(long id);
 

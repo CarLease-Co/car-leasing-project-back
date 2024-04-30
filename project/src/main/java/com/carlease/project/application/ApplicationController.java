@@ -23,7 +23,7 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @GetMapping(produces = "application/json")
+    @GetMapping("/all")
     ResponseEntity<List<ApplicationFormDto>> getApplications() {
         List<ApplicationFormDto> list = applicationService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
@@ -60,11 +60,11 @@ public class ApplicationController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateStatus(@PathVariable("id") long id, @RequestBody ApplicationStatus status) {
+    public ResponseEntity<?> updateStatus(@PathVariable("id") long applicationId, @RequestBody ApplicationStatus status, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
         try {
-            ApplicationFormDto updatedApplication = applicationService.updateStatus(id, status);
+            ApplicationFormDto updatedApplication = applicationService.updateStatus(applicationId, userId, status, role);
             return ResponseEntity.ok(updatedApplication);
-        } catch (ApplicationNotFoundException e) {
+        } catch (ApplicationNotFoundException | UserException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
