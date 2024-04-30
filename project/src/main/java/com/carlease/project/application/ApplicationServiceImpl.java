@@ -98,7 +98,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses) {
-        List<Application> applications = applicationRepository.findByStatuses(statuses);
+        List<Application> applications = applicationRepository.findByStatusIn(statuses);
         return applications.stream()
                 .map(applicationMapper::toDto)
                 .toList();

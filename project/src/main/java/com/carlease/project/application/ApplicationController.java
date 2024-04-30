@@ -1,8 +1,10 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.ApplicationNotFoundException;
 import com.carlease.project.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.UserException;
 import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

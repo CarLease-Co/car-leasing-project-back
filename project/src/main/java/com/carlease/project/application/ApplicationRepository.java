@@ -12,5 +12,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findByStatus(ApplicationStatus status);
 
-    List<Application> findByStatuses(List<ApplicationStatus> statuses);
+    List<Application> findByStatusIn(List<ApplicationStatus> statuses);
 }
