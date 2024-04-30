@@ -1,11 +1,13 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
+import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.ApplicationNotFoundException;
 import com.carlease.project.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.exceptions.UserException;
 import com.carlease.project.exceptions.UserNotFoundException;
+import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +60,16 @@ public class ApplicationController {
         ApplicationFormDto newApplication = applicationService.create(applicationFormDto);
         applicationService.evaluation(newApplication);
         return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable("id") long id, @RequestBody ApplicationStatus status) {
+        try {
+            ApplicationFormDto updatedApplication = applicationService.updateStatus(id, status);
+            return ResponseEntity.ok(updatedApplication);
+        } catch (ApplicationNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/autosuggestion")
