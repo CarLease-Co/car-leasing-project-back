@@ -97,8 +97,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationFormDto> findAllByStatusIn(List<ApplicationStatus> statuses) {
-        List<Application> applications = applicationRepository.findByStatusIn(statuses);
+    public List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses) {
+        List<Application> applications = applicationRepository.findByStatuses(statuses);
         return applications.stream()
                 .map(applicationMapper::toDto)
                 .toList();
@@ -119,7 +119,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             case REVIEWER:
                 return findAllByStatus(ApplicationStatus.PENDING);
             case APPROVER:
-                return findAllByStatusIn(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
+                return findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
             default:
                 return null;
         }

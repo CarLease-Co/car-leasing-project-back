@@ -17,7 +17,7 @@ public interface ApplicationService {
 
     List<ApplicationFormDto> findAllByStatus(ApplicationStatus status);
 
-    List<ApplicationFormDto> findAllByStatusIn(List<ApplicationStatus> statuses);
+    List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses);
 
     List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException;
 
