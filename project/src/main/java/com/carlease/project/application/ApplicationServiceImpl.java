@@ -5,16 +5,15 @@ import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
 import com.carlease.project.exceptions.UserException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.interestrate.InterestRateDTO;
 import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
-import com.carlease.project.exceptions.ApplicationNotFoundException;
-import com.carlease.project.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,6 +80,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public ApplicationFormDto updateStatus(long id, ApplicationStatus status) throws ApplicationNotFoundException {
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException("id"));
+        application.setStatus(status);
+        Application savedApplication = applicationRepository.save(application);
+        return applicationMapper.toDto(savedApplication);
+    }
+
+    @Override
     public List<ApplicationFormDto> findAllByUserId(long id) {
         List<Application> applications = applicationRepository.findApplicationsByUserUserId(id);
         return applications.stream()
@@ -113,16 +120,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new UserException("User role does not match the provided role");
         }
 
-        switch (role) {
-            case APPLICANT:
-                return findAllByUserId(id);
-            case REVIEWER:
-                return findAllByStatus(ApplicationStatus.PENDING);
-            case APPROVER:
-                return findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
-            default:
-                return null;
-        }
+        return switch (role) {
+            case APPLICANT -> findAllByUserId(id);
+            case REVIEWER -> findAllByStatus(ApplicationStatus.PENDING);
+            case APPROVER ->
+                    findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
+            default -> null;
+        };
     }
 
     public void evaluation(ApplicationFormDto applicationDto) {
