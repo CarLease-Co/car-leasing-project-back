@@ -1,12 +1,12 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.enums.AutosuggestionStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -24,6 +24,11 @@ public class Autosuggestor {
     private Application application;
 
     private int evaluation;
+
+    @Column(name = "evaluation_status")
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AutosuggestionStatus evalStatus;
 
     private int currentYear;
 

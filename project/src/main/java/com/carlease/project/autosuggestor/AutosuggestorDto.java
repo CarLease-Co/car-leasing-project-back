@@ -1,10 +1,9 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.enums.AutosuggestionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.time.LocalDate;
 
 @AllArgsConstructor
 @Data
@@ -15,4 +14,5 @@ public class AutosuggestorDto {
     private int evaluation;
     private int currentYear;
     private CarPrice price;
+    private AutosuggestionStatus evalStatus;
 }

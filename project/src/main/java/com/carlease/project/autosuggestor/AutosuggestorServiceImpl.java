@@ -5,6 +5,7 @@ import com.carlease.project.application.ApplicationMapper;
 import com.carlease.project.application.ApplicationRepository;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
+import com.carlease.project.enums.AutosuggestionStatus;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import java.util.List;
 @Service
 public class AutosuggestorServiceImpl implements AutosuggestorService {
     private static final float PERCENT = 0.1f;
+    private static final int UPPER_BOUNDARY = 5;
+    private static final int LOWER_BOUNDARY = -5;
 
     private final AutosuggestorRepository autosuggestorRepository;
     private final CarRepository carRepository;
@@ -123,7 +126,6 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
     }
 
     public Integer paymentEvaluation(ApplicationFormDto applicationDto, double interestRate, double rate) {
-        double interestRateValue = rate + 1;
         BigDecimal monthlyPayment = calculateTotalLoanPrice(applicationDto, interestRate).divide(BigDecimal.valueOf(applicationDto.getLoanDuration()), 2, BigDecimal.ROUND_HALF_UP);
 
         BigDecimal maxPossibleObligations = (applicationDto.getMonthlyIncome().subtract(applicationDto.getFinancialObligations()).multiply(BigDecimal.valueOf(rate)));
@@ -157,7 +159,13 @@ public class AutosuggestorServiceImpl implements AutosuggestorService {
         Autosuggestor autosuggestion = new Autosuggestor();
         autosuggestion.setApplication(applicationMapper.toEntity(applicationDto));
         autosuggestion.setEvaluation(evaluation);
-
+        if (evaluation >= UPPER_BOUNDARY) {
+            autosuggestion.setEvalStatus(AutosuggestionStatus.GOOD);
+        } else if (evaluation >= LOWER_BOUNDARY) {
+            autosuggestion.setEvalStatus(AutosuggestionStatus.MAYBE);
+        } else {
+            autosuggestion.setEvalStatus(AutosuggestionStatus.BAD);
+        }
         autosuggestorRepository.save(autosuggestion);
     }
 }

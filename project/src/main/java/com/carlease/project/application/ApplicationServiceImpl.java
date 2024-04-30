@@ -106,5 +106,4 @@ public class ApplicationServiceImpl implements ApplicationService {
         Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
         return autosuggestorMapper.toDto(autosuggestor);
     }
-
 }
