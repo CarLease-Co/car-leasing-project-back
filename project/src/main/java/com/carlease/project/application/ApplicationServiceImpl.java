@@ -94,7 +94,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
                 break;
             case APPROVER:
-                if (!isValidApproverStatus(application.getStatus(), status)) {
+                if (!isValidApproverStatus(application.getStatus(), status)){
                     throw new UserException("Approver cannot update status to " + status);
                 }
                 break;
@@ -116,7 +116,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private boolean isValidApproverStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
-        return (currentStatus == ApplicationStatus.REVIEW_APPROVED || currentStatus == ApplicationStatus.REVIEW_DECLINED) && (newStatus == ApplicationStatus.APPROVED || newStatus == ApplicationStatus.DECLINED);
+        return (currentStatus == ApplicationStatus.REVIEW_APPROVED || currentStatus == ApplicationStatus.REVIEW_DECLINED) && (newStatus == ApplicationStatus.APPROVED || newStatus == ApplicationStatus.DECLINED || newStatus == ApplicationStatus.PENDING);
     }
 
     @Override
