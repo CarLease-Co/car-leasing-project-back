@@ -11,10 +11,9 @@ import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
-import com.carlease.project.user.exceptions.ApplicationNotFoundException;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.user.exceptions.UserException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.ApplicationNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -130,7 +129,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 
-        CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto, applicationDto.getManufactureDate()));
+        CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto));
         if (ApplicationStatus.PENDING.equals(applicationDto.getStatus())) {
             autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
         }
@@ -145,5 +144,4 @@ public class ApplicationServiceImpl implements ApplicationService {
         Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
         return autosuggestorMapper.toDto(autosuggestor);
     }
-
 }
