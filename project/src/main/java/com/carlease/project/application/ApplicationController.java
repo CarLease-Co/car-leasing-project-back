@@ -22,7 +22,7 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @GetMapping(produces = "application/json")
+    @GetMapping("/all")
     ResponseEntity<List<ApplicationFormDto>> getApplications() {
         List<ApplicationFormDto> list = applicationService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
@@ -39,6 +39,16 @@ public class ApplicationController {
     ResponseEntity<List<ApplicationFormDto>> getApplicationsByUserId(@PathVariable("userId") long id) {
         List<ApplicationFormDto> applications = applicationService.findAllByUserId(id);
         return new ResponseEntity<>(applications, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
+        try {
+            List<ApplicationFormDto> applicationDTOs = applicationService.getApplicationsByUser(userId, role);
+            return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
+        } catch (UserException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping

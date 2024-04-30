@@ -14,6 +14,12 @@ public interface ApplicationService {
 
     ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException;
 
+    List<ApplicationFormDto> findAllByStatus(ApplicationStatus status);
+
+    List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses);
+
+    List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException;
+
     void evaluation(ApplicationFormDto applicationDto);
 
     List<ApplicationFormDto> findAllByUserId(long id);

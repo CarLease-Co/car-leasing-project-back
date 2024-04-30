@@ -4,6 +4,7 @@ import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
 import com.carlease.project.enums.ApplicationStatus;
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.interestrate.InterestRate;
 import com.carlease.project.interestrate.InterestRateDTO;
 import com.carlease.project.interestrate.InterestRateMapper;
@@ -84,6 +85,43 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applications.stream()
                 .map(applicationMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatus(ApplicationStatus status) {
+        List<Application> applications = applicationRepository.findByStatus(status);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses) {
+        List<Application> applications = applicationRepository.findByStatuses(statuses);
+        return applications.stream()
+                .map(applicationMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException {
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+
+        if (!user.getRole().equals(role)) {
+            throw new UserException("User role does not match the provided role");
+        }
+
+        switch (role) {
+            case APPLICANT:
+                return findAllByUserId(id);
+            case REVIEWER:
+                return findAllByStatus(ApplicationStatus.PENDING);
+            case APPROVER:
+                return findAllByStatuses(List.of(ApplicationStatus.REVIEW_APPROVED, ApplicationStatus.REVIEW_DECLINED));
+            default:
+                return null;
+        }
     }
 
     public void evaluation(ApplicationFormDto applicationDto) {
