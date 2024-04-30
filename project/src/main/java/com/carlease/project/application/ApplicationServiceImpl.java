@@ -84,7 +84,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         switch (role) {
             case APPLICANT:
-                if (!isValidApplicantStatus(application.getStatus(), status)) {
+                if (!isValidApplicantStatus(application.getStatus() ,status)) {
                     throw new UserException("Applicant cannot update status to " + status);
                 }
                 break;
@@ -107,8 +107,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationMapper.toDto(savedApplication);
     }
 
-    private boolean isValidApplicantStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
-        return newStatus == ApplicationStatus.DRAFT || newStatus == ApplicationStatus.PENDING;
+    private boolean isValidApplicantStatus(ApplicationStatus currentStatus ,ApplicationStatus newStatus) {
+        return currentStatus == ApplicationStatus.DRAFT && newStatus == ApplicationStatus.PENDING;
     }
 
     private boolean isValidReviewerStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
