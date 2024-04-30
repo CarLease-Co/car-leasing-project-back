@@ -3,10 +3,7 @@ package com.carlease.project.application;
 import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
-import com.carlease.project.exceptions.ApplicationNotFoundException;
-import com.carlease.project.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.exceptions.UserException;
-import com.carlease.project.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.*;
 
 import java.util.List;
 
@@ -33,5 +30,5 @@ public interface ApplicationService {
 
     boolean deleteById(long applicationId, long userId, UserRole role) throws ApplicationNotFoundException, UserException;
 
-    ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto) throws ApplicationNotFoundException, com.carlease.project.user.exceptions.ApplicationNotDraftException, com.carlease.project.user.exceptions.ApplicationNotDraftException;
+    ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto,long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException;
 }

@@ -3,12 +3,8 @@ package com.carlease.project.application;
 import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
-import com.carlease.project.exceptions.ApplicationNotFoundException;
-import com.carlease.project.exceptions.AutosuggestorNotFoundException;
-import com.carlease.project.exceptions.UserException;
-import com.carlease.project.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.*;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,13 +70,13 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}/autosuggestion")
-    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException {
+    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException, ApplicationNotFoundException {
         AutosuggestorDto autosuggestion = applicationService.findAutosuggestorByApplicationId(id);
         return new ResponseEntity<>(autosuggestion, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId")long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
+    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
         boolean applicationDeleted = applicationService.deleteById(applicationId, userId, role);
         if (applicationDeleted) {
             return ResponseEntity.noContent().build();
@@ -88,9 +84,9 @@ public class ApplicationController {
         return ResponseEntity.notFound().build();
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApplicationFormDto> update(@PathVariable Long id, @Valid @RequestBody ApplicationFormDto applicationDto) throws ApplicationNotFoundException, com.carlease.project.user.exceptions.ApplicationNotDraftException, com.carlease.project.user.exceptions.ApplicationNotDraftException, com.carlease.project.user.exceptions.ApplicationNotDraftException {
-        ApplicationFormDto updatedApplication = applicationService.update(id, applicationDto);
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException {
+        ApplicationFormDto updatedApplication = applicationService.update(applicationId, applicationDto, userId, role);
         return ResponseEntity.ok(updatedApplication);
     }
 }
