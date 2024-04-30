@@ -30,6 +30,6 @@ public interface ApplicationService {
 
     AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException, ApplicationNotFoundException;
 
-    boolean deleteById(long id) throws ApplicationNotFoundException;
+    boolean deleteById(long applicationId, long userId, UserRole role) throws ApplicationNotFoundException, UserException;
 
 }
