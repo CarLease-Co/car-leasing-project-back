@@ -82,9 +82,41 @@ public class ApplicationServiceImpl implements ApplicationService {
         validateUserRole(userId, role);
         Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new ApplicationNotFoundException("id"));
 
+        switch (role) {
+            case APPLICANT:
+                if (!isValidApplicantStatus(application.getStatus(), status)) {
+                    throw new UserException("Applicant cannot update status to " + status);
+                }
+                break;
+            case REVIEWER:
+                if (!isValidReviewerStatus(application.getStatus(), status)) {
+                    throw new UserException("Reviewer cannot update status to " + status);
+                }
+                break;
+            case APPROVER:
+                if (!isValidApproverStatus(application.getStatus(), status)) {
+                    throw new UserException("Approver cannot update status to " + status);
+                }
+                break;
+            default:
+                throw new UserException("Unsupported user role: " + role);
+        }
+
         application.setStatus(status);
         Application savedApplication = applicationRepository.save(application);
         return applicationMapper.toDto(savedApplication);
+    }
+
+    private boolean isValidApplicantStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return newStatus == ApplicationStatus.DRAFT || newStatus == ApplicationStatus.PENDING;
+    }
+
+    private boolean isValidReviewerStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return currentStatus == ApplicationStatus.PENDING && (newStatus == ApplicationStatus.REVIEW_APPROVED || newStatus == ApplicationStatus.REVIEW_DECLINED);
+    }
+
+    private boolean isValidApproverStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return (currentStatus == ApplicationStatus.REVIEW_APPROVED || currentStatus == ApplicationStatus.REVIEW_DECLINED) && (newStatus == ApplicationStatus.APPROVED || newStatus == ApplicationStatus.DECLINED);
     }
 
     @Override
