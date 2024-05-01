@@ -43,12 +43,14 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserNotFoundException {
+    public ResponseEntity<?> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
         try {
             List<ApplicationFormDto> applicationDTOs = applicationService.getApplicationsByUser(userId, role);
             return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
         } catch (UserException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

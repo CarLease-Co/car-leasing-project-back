@@ -38,7 +38,7 @@ public class InterestRateServiceImpl implements InterestRateService {
         UserServiceImpl.validateUserRole(userRepository, userId, role);
 
         if (!role.equals(UserRole.BUSINESS_ADMIN))
-            throw new UserException("Only business admins can update interest rates");
+            throw new UserException("User role does not match the provided role");
 
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 

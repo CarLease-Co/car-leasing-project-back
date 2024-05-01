@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
         validateUserRole(userRepository, userId, role);
 
         if (!role.equals(UserRole.SYSTEM_ADMIN))
-            throw new UserNotFoundException(userId);
+            throw new UserException("User role does not match the provided role");
 
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
