@@ -2,6 +2,7 @@ package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
+import com.carlease.project.user.exceptions.ApplicationStatusException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
 
@@ -18,5 +19,5 @@ public interface ApplicationService {
 
     List<ApplicationFormDto> findAllByUserId(long id);
 
-    AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException;
+    AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException, ApplicationStatusException, ApplicationNotFoundException;
 }

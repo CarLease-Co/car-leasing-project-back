@@ -2,6 +2,7 @@ package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.user.exceptions.ApplicationNotFoundException;
+import com.carlease.project.user.exceptions.ApplicationStatusException;
 import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
 import com.carlease.project.user.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}/autosuggestion")
-    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException {
+    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException, ApplicationStatusException, ApplicationNotFoundException {
         AutosuggestorDto autosuggestion = applicationService.findAutosuggestorByApplicationId(id);
         return new ResponseEntity<>(autosuggestion, HttpStatus.OK);
     }
