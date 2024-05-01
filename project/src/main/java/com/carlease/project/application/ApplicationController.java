@@ -43,7 +43,7 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
+    public ResponseEntity<?> getApplicationsByUser(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserNotFoundException {
         try {
             List<ApplicationFormDto> applicationDTOs = applicationService.getApplicationsByUser(userId, role);
             return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
@@ -76,7 +76,7 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
+    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException, UserNotFoundException {
         boolean applicationDeleted = applicationService.deleteById(applicationId, userId, role);
         if (applicationDeleted) {
             return ResponseEntity.noContent().build();
@@ -85,7 +85,7 @@ public class ApplicationController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException {
+    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException {
         ApplicationFormDto updatedApplication = applicationService.update(applicationId, applicationDto, userId, role);
         return ResponseEntity.ok(updatedApplication);
     }

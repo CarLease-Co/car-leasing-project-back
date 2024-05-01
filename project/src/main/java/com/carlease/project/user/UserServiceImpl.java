@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,7 +46,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(User user, long userId, UserRole role) throws UserNotFoundException, UserException {
+        validateUserRole(userRepository, userId, role);
+
+        if (!role.equals(UserRole.SYSTEM_ADMIN))
+            throw new UserNotFoundException(userId);
+
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
 
