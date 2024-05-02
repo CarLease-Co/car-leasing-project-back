@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -108,7 +109,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private boolean isValidApplicantStatus(ApplicationStatus currentStatus ,ApplicationStatus newStatus) {
-        return currentStatus == ApplicationStatus.DRAFT && newStatus == ApplicationStatus.PENDING;
+        return Objects.equals(currentStatus, ApplicationStatus.DRAFT) && Objects.equals(newStatus, ApplicationStatus.PENDING);
     }
 
     private boolean isValidReviewerStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
