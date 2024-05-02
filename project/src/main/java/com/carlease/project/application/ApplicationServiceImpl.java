@@ -113,11 +113,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private boolean isValidReviewerStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
-        return currentStatus == ApplicationStatus.PENDING && (newStatus == ApplicationStatus.REVIEW_APPROVED || newStatus == ApplicationStatus.REVIEW_DECLINED);
+        return Objects.equals(currentStatus, ApplicationStatus.PENDING) && ((Objects.equals(newStatus, ApplicationStatus.REVIEW_APPROVED) || (Objects.equals(newStatus, ApplicationStatus.REVIEW_DECLINED))));
     }
 
     private boolean isValidApproverStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
-        return (currentStatus == ApplicationStatus.REVIEW_APPROVED || currentStatus == ApplicationStatus.REVIEW_DECLINED) && (newStatus == ApplicationStatus.APPROVED || newStatus == ApplicationStatus.DECLINED || newStatus == ApplicationStatus.PENDING);
+        return ((Objects.equals(currentStatus, ApplicationStatus.REVIEW_DECLINED)) || (Objects.equals(currentStatus, ApplicationStatus.REVIEW_APPROVED))) && ((Objects.equals(newStatus, ApplicationStatus.APPROVED)) || (Objects.equals(newStatus, ApplicationStatus.DECLINED)) || (Objects.equals(newStatus, ApplicationStatus.PENDING)));
     }
 
     @Override
