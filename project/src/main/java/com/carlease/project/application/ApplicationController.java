@@ -23,7 +23,7 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    @GetMapping(produces = "application/json")
+    @GetMapping("/applications")
     ResponseEntity<List<ApplicationFormDto>> getApplications() {
         List<ApplicationFormDto> list = applicationService.findAll();
         return new ResponseEntity<>(list, HttpStatus.OK);
