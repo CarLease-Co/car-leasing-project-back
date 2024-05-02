@@ -37,7 +37,7 @@ public class InterestRateServiceImpl implements InterestRateService {
     public InterestRateDTO findAndUpdate(InterestRateDTO interestRateDTO, long userId, UserRole role) throws UserNotFoundException, UserException {
         UserServiceImpl.validateUserRole(userRepository, userId, role);
 
-        if (!role.equals(UserRole.BUSINESS_ADMIN))
+        if (!UserRole.BUSINESS_ADMIN.equals(role))
             throw new UserException("User role does not match the provided role");
 
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
