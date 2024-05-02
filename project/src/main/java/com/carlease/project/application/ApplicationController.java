@@ -4,7 +4,6 @@ import com.carlease.project.autosuggestor.AutosuggestorDto;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.*;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,10 +52,14 @@ public class ApplicationController {
     }
 
     @PostMapping
-    ResponseEntity<ApplicationFormDto> createApplication(@RequestBody ApplicationFormDto applicationFormDto) throws UserNotFoundException {
-        ApplicationFormDto newApplication = applicationService.create(applicationFormDto);
-        applicationService.evaluation(newApplication);
-        return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
+    ResponseEntity<?> createApplication(@RequestBody ApplicationFormDto applicationFormDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserNotFoundException {
+        try {
+            ApplicationFormDto newApplication = applicationService.create(applicationFormDto, userId, role);
+            applicationService.evaluation(newApplication);
+            return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
+        } catch (UserException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PatchMapping("/{id}")

@@ -61,13 +61,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException {
+    public ApplicationFormDto create(ApplicationFormDto applicationFormDto, long userId, UserRole role) throws UserNotFoundException, UserException {
+        validateUserRole(userId, role);
         Application application = applicationMapper.toEntity(applicationFormDto);
-
         Car car = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
-
         User user = userRepository.findById(applicationFormDto.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(applicationFormDto.getUserId()));
+
+        if (!(role.equals(UserRole.APPLICANT))) {
+            throw new UserException("Don't have permission to create application");
+        }
 
         application.setCar(car);
         application.setUser(user);
