@@ -32,10 +32,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PostMapping("/login")
-    ResponseEntity<?> login(@RequestBody UserCredentials user) {
+    @GetMapping("/login")
+    ResponseEntity<?> login(@RequestParam("username") String username, @RequestParam("password") String password) {
         try {
-            UserSession userSession = userService.login(user.getUsername(), user.getPassword());
+            UserSession userSession = userService.login(username, password);
             return new ResponseEntity<>(userSession, HttpStatus.OK);
         } catch (IncorrectPasswordException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
