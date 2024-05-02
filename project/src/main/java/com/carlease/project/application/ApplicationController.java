@@ -66,6 +66,9 @@ public class ApplicationController {
     public ResponseEntity<?> updateStatus(@PathVariable("id") long applicationId, @RequestBody ApplicationStatus status, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
         try {
             ApplicationFormDto updatedApplication = applicationService.updateStatus(applicationId, userId, status, role);
+            if (ApplicationStatus.PENDING.equals(updatedApplication.getStatus())) {
+                applicationService.evaluation(updatedApplication);
+            }
             return ResponseEntity.ok(updatedApplication);
         } catch (ApplicationNotFoundException | UserException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
