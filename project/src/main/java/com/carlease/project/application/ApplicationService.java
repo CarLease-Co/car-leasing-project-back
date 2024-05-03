@@ -1,10 +1,10 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
+
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.*;
-
 import java.util.List;
 
 public interface ApplicationService {

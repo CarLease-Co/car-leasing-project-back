@@ -132,24 +132,28 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     public void evaluation(ApplicationFormDto applicationDto) {
-
-        InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
-        InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
-
-        CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto));
         if (ApplicationStatus.PENDING.equals(applicationDto.getStatus())) {
+
+            InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
+            InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
+            CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto));
             autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
         }
     }
 
     @Override
-    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException {
+    public AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException, ApplicationStatusException, ApplicationNotFoundException {
         Optional<Application> applicationOptional = applicationRepository.findById(id);
         if (applicationOptional.isEmpty()) {
-            throw new AutosuggestorNotFoundException("Application not found with ID: " + id);
+            throw new ApplicationNotFoundException("Application not found with ID: " + id);
         }
-        Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
-        return autosuggestorMapper.toDto(autosuggestor);
+        Application application = applicationOptional.get();
+        if (ApplicationStatus.DRAFT.equals(application.getStatus())) {
+            throw new ApplicationStatusException(application.getStatus().toString());
+        } else {
+            Autosuggestor autosuggestor = autosuggestorRepository.findByApplicationId(id);
+            return autosuggestorMapper.toDto(autosuggestor);
+        }
     }
 
     @Override
