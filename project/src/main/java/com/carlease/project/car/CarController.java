@@ -1,6 +1,9 @@
 package com.carlease.project.car;
 
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.CarNotFoundException;
+import com.carlease.project.exceptions.UserException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,12 +42,14 @@ public class CarController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<CarDto> updateCarPrices(@RequestBody CarDto carDto) {
+    public ResponseEntity<CarDto> updateCarPrices(@RequestBody CarDto carDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) {
         try {
-            CarDto updatedCar = carServiceImpl.updatePrice(carDto);
+            CarDto updatedCar = carServiceImpl.updatePrice(carDto, userId, role);
             return ResponseEntity.ok(updatedCar);
         } catch (CarNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (UserException | UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 }
