@@ -50,8 +50,6 @@ public class ApplicationController {
             return new ResponseEntity<>(applicationDTOs, HttpStatus.OK);
         } catch (UserException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -80,7 +78,7 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException, UserNotFoundException {
+    ResponseEntity<Void> deleteApplication(@PathVariable("id") long applicationId, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, UserException {
         boolean applicationDeleted = applicationService.deleteById(applicationId, userId, role);
         if (applicationDeleted) {
             return ResponseEntity.noContent().build();
@@ -89,7 +87,7 @@ public class ApplicationController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException {
+    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException {
         ApplicationFormDto updatedApplication = applicationService.update(applicationId, applicationDto, userId, role);
         return ResponseEntity.ok(updatedApplication);
     }

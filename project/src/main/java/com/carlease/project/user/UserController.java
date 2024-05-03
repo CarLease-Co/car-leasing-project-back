@@ -1,8 +1,6 @@
 package com.carlease.project.user;
 
-import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.IncorrectPasswordException;
-import com.carlease.project.exceptions.UserException;
 import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,8 +43,8 @@ public class UserController {
     }
 
     @PostMapping
-    ResponseEntity<User> createUser(@RequestBody User user, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserNotFoundException, UserException {
-        User newUser = userService.createUser(user, userId, role);
+    ResponseEntity<User> createUser(@RequestBody User user) {
+        User newUser = userService.createUser(user);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 }

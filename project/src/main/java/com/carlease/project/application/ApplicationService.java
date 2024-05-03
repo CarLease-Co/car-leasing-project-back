@@ -18,7 +18,7 @@ public interface ApplicationService {
 
     List<ApplicationFormDto> findAllByStatuses(List<ApplicationStatus> statuses);
 
-    List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException, UserNotFoundException;
+    List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException;
 
     void evaluation(ApplicationFormDto applicationDto);
 
@@ -28,7 +28,7 @@ public interface ApplicationService {
 
     AutosuggestorDto findAutosuggestorByApplicationId(long id) throws AutosuggestorNotFoundException, ApplicationNotFoundException;
 
-    boolean deleteById(long applicationId, long userId, UserRole role) throws ApplicationNotFoundException, UserException, UserNotFoundException;
+    boolean deleteById(long applicationId, long userId, UserRole role) throws ApplicationNotFoundException, UserException;
 
-    ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto,long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException;
+    ApplicationFormDto update(long id, ApplicationFormDto applicationFormDto,long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException;
 }
