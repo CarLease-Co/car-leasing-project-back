@@ -1,7 +1,6 @@
 package com.carlease.project.application;
 
 import com.carlease.project.autosuggestor.AutosuggestorDto;
-
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.*;
@@ -73,8 +72,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}/autosuggestion")
-    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException, ApplicationStatusException, ApplicationNotFoundException {
-
+    ResponseEntity<AutosuggestorDto> getAutosuggestionByApplicationId(@PathVariable("id") long id) throws AutosuggestorNotFoundException, ApplicationNotFoundException {
         AutosuggestorDto autosuggestion = applicationService.findAutosuggestorByApplicationId(id);
         return new ResponseEntity<>(autosuggestion, HttpStatus.OK);
     }
