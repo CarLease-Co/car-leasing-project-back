@@ -2,7 +2,7 @@ package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.ApplicationFormDto;
 import com.carlease.project.interestrate.InterestRate;
-import com.carlease.project.user.exceptions.AutosuggestorNotFoundException;
+import com.carlease.project.exceptions.AutosuggestorNotFoundException;
 
 import java.math.BigDecimal;
 import java.util.List;

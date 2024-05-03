@@ -1,7 +1,7 @@
 package com.carlease.project.user;
 
-import com.carlease.project.user.exceptions.IncorrectPasswordException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.IncorrectPasswordException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +32,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/login")
-    ResponseEntity<?> login(@RequestParam("username") String username, @RequestParam("password") String password) {
+    @PostMapping("/login")
+    ResponseEntity<?> login(@RequestBody UserCredentials user) {
         try {
-            UserSession userSession = userService.login(username, password);
+            UserSession userSession = userService.login(user.getUsername(), user.getPassword());
             return new ResponseEntity<>(userSession, HttpStatus.OK);
         } catch (IncorrectPasswordException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
