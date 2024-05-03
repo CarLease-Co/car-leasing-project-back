@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.carlease.project.user.UserServiceImpl.validateUserRole;
+
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
 
@@ -63,7 +65,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationFormDto create(ApplicationFormDto applicationFormDto, long userId, UserRole role) throws UserNotFoundException, UserException {
-        validateUserRole(userId, role);
+        validateUserRole(userRepository, userId, role);
         Application application = applicationMapper.toEntity(applicationFormDto);
         Car car = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
         User user = userRepository.findById(applicationFormDto.getUserId())
@@ -83,8 +85,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException {
-        validateUserRole(userId, role);
+    public ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException, UserNotFoundException {
+        validateUserRole(userRepository,userId, role);
         Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new ApplicationNotFoundException("id"));
 
         switch (role) {
@@ -150,7 +152,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException, UserNotFoundException {
-        UserServiceImpl.validateUserRole(userRepository, id, role);
+        validateUserRole(userRepository, id, role);
 
         return switch (role) {
             case APPLICANT -> findAllByUserId(id);
@@ -186,7 +188,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public boolean deleteById(long applicationId, long userId, UserRole role) throws UserException, UserNotFoundException {
-        UserServiceImpl.validateUserRole(userRepository, userId, role);
+        validateUserRole(userRepository, userId, role);
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
 
@@ -205,7 +207,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationFormDto update(long applicationId, ApplicationFormDto applicationFormDto, long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException {
-        UserServiceImpl.validateUserRole(userRepository, userId, role);
+        validateUserRole(userRepository, userId, role);
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
 

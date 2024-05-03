@@ -74,6 +74,8 @@ public class ApplicationController {
             return ResponseEntity.ok(updatedApplication);
         } catch (ApplicationNotFoundException | UserException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
