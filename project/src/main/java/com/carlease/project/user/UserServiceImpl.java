@@ -1,7 +1,7 @@
 package com.carlease.project.user;
 
-import com.carlease.project.user.exceptions.IncorrectPasswordException;
-import com.carlease.project.user.exceptions.UserNotFoundException;
+import com.carlease.project.exceptions.IncorrectPasswordException;
+import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,6 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-
     }
 
     @Override

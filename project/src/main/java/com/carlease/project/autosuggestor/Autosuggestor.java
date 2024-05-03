@@ -1,17 +1,18 @@
 package com.carlease.project.autosuggestor;
 
 import com.carlease.project.application.Application;
+import com.carlease.project.enums.AutosuggestionStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "autosuggestors")
 public class Autosuggestor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -24,10 +25,11 @@ public class Autosuggestor {
 
     private int evaluation;
 
-    private double interestRate; // palukanu norma
+    @Column(name = "evaluation_status")
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AutosuggestionStatus evalStatus;
 
-    private int currentYear = LocalDate.now().getYear();
-
-    private double rate; // koeficientas kiek proc menesiniu islaidu nevirsyti
+    private int currentYear;
 
 }
