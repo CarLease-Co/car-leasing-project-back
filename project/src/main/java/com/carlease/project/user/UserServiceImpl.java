@@ -1,6 +1,8 @@
 package com.carlease.project.user;
 
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.IncorrectPasswordException;
+import com.carlease.project.exceptions.UserException;
 import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,10 +46,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(User user, long userId, UserRole role) throws UserNotFoundException, UserException {
+        validateUserRole(userRepository, userId, role);
+
+        if (!UserRole.SYSTEM_ADMIN.equals(role))
+            throw new UserException("User role does not match the provided role");
+
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
 
         return userRepository.save(user);
+    }
+
+    public static void validateUserRole(UserRepository userRepository, long id, UserRole role) throws UserException, UserNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        if (!user.getRole().equals(role)) {
+            throw new UserException("User role does not match the provided role");
+        }
     }
 }
