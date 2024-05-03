@@ -97,6 +97,9 @@ public class ApplicationController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException {
         ApplicationFormDto updatedApplication = applicationService.update(applicationId, applicationDto, userId, role);
+        if (ApplicationStatus.PENDING.equals(updatedApplication.getStatus())) {
+            applicationService.evaluation(updatedApplication);
+        }
         return ResponseEntity.ok(updatedApplication);
     }
 }
