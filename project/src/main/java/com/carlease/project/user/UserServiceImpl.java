@@ -7,6 +7,7 @@ import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
@@ -22,7 +23,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<User> findAll(long userId, UserRole role) throws UserNotFoundException, UserException {
+        validateUserRole(userRepository, userId, role);
+
+        if (!UserRole.SYSTEM_ADMIN.equals(role))
+            throw new UserException("User role does not match the provided role");
+
         return userRepository.findAll();
     }
 

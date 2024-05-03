@@ -22,8 +22,8 @@ public class UserController {
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<User>> getUsers() {
-        List<User> list = userService.findAll();
+    ResponseEntity<List<User>> getUsers(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserException, UserNotFoundException {
+        List<User> list = userService.findAll(userId, role);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
