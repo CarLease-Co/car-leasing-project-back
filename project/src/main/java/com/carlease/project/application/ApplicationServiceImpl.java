@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -61,13 +62,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException {
+    public ApplicationFormDto create(ApplicationFormDto applicationFormDto, long userId, UserRole role) throws UserNotFoundException, UserException {
+        validateUserRole(userId, role);
         Application application = applicationMapper.toEntity(applicationFormDto);
-
         Car car = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
-
         User user = userRepository.findById(applicationFormDto.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(applicationFormDto.getUserId()));
+
+        if (!(role.equals(UserRole.APPLICANT))) {
+            throw new UserException("Don't have permission to create application");
+        }
 
         application.setCar(car);
         application.setUser(user);
@@ -79,11 +83,45 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto updateStatus(long id, ApplicationStatus status) throws ApplicationNotFoundException {
-        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException("id"));
+    public ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException {
+        validateUserRole(userId, role);
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new ApplicationNotFoundException("id"));
+
+        switch (role) {
+            case APPLICANT:
+                if (!isValidApplicantStatus(application.getStatus() ,status)) {
+                    throw new UserException("Applicant cannot update status to " + status);
+                }
+                break;
+            case REVIEWER:
+                if (!isValidReviewerStatus(application.getStatus(), status)) {
+                    throw new UserException("Reviewer cannot update status to " + status);
+                }
+                break;
+            case APPROVER:
+                if (!isValidApproverStatus(application.getStatus(), status)){
+                    throw new UserException("Approver cannot update status to " + status);
+                }
+                break;
+            default:
+                throw new UserException("Unsupported user role: " + role);
+        }
+
         application.setStatus(status);
         Application savedApplication = applicationRepository.save(application);
         return applicationMapper.toDto(savedApplication);
+    }
+
+    private boolean isValidApplicantStatus(ApplicationStatus currentStatus ,ApplicationStatus newStatus) {
+        return Objects.equals(currentStatus, ApplicationStatus.DRAFT) && Objects.equals(newStatus, ApplicationStatus.PENDING);
+    }
+
+    private boolean isValidReviewerStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return Objects.equals(currentStatus, ApplicationStatus.PENDING) && ((Objects.equals(newStatus, ApplicationStatus.REVIEW_APPROVED) || (Objects.equals(newStatus, ApplicationStatus.REVIEW_DECLINED))));
+    }
+
+    private boolean isValidApproverStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return ((Objects.equals(currentStatus, ApplicationStatus.REVIEW_DECLINED)) || (Objects.equals(currentStatus, ApplicationStatus.REVIEW_APPROVED))) && ((Objects.equals(newStatus, ApplicationStatus.APPROVED)) || (Objects.equals(newStatus, ApplicationStatus.DECLINED)) || (Objects.equals(newStatus, ApplicationStatus.PENDING)));
     }
 
     @Override
