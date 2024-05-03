@@ -22,7 +22,7 @@ public interface ApplicationService {
 
     ApplicationFormDto create(ApplicationFormDto applicationFormDto, long userId, UserRole role) throws UserNotFoundException, UserException;
 
-    ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException;
+    ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException, UserNotFoundException;
 
     List<ApplicationFormDto> findAllByUserId(long id);
 
