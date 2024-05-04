@@ -61,6 +61,8 @@ public class ApplicationController {
             return new ResponseEntity<>(newApplication, HttpStatus.CREATED);
         } catch (UserException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (AutosuggestorNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -75,6 +77,8 @@ public class ApplicationController {
         } catch (ApplicationNotFoundException | UserException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (AutosuggestorNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -95,7 +99,7 @@ public class ApplicationController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException {
+    public ResponseEntity<ApplicationFormDto> update(@PathVariable("id") long applicationId, @RequestBody ApplicationFormDto applicationDto, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException, AutosuggestorNotFoundException {
         ApplicationFormDto updatedApplication = applicationService.update(applicationId, applicationDto, userId, role);
         if (ApplicationStatus.PENDING.equals(updatedApplication.getStatus())) {
             applicationService.evaluation(updatedApplication);

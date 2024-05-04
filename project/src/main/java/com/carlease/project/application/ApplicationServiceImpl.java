@@ -165,14 +165,17 @@ public class ApplicationServiceImpl implements ApplicationService {
 
 
 
-    public void evaluation(ApplicationFormDto applicationDto) {
+    public void evaluation(ApplicationFormDto applicationDto) throws AutosuggestorNotFoundException {
 
         InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 
         CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto));
         if (ApplicationStatus.PENDING.equals(applicationDto.getStatus())) {
-            autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
+            AutosuggestorDto existingAutosuggestion = findAutosuggestorByApplicationId(applicationDto.getId());
+            if (existingAutosuggestion == null) {
+                autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
+            }
         }
     }
 

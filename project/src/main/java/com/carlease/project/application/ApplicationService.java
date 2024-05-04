@@ -18,7 +18,7 @@ public interface ApplicationService {
 
     List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException, UserNotFoundException;
 
-    void evaluation(ApplicationFormDto applicationDto);
+    void evaluation(ApplicationFormDto applicationDto) throws AutosuggestorNotFoundException;
 
     ApplicationFormDto create(ApplicationFormDto applicationFormDto, long userId, UserRole role) throws UserNotFoundException, UserException;
 
