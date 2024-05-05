@@ -3,6 +3,8 @@ package com.carlease.project.application;
 import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
+import com.carlease.project.email.EmailService;
+import com.carlease.project.email.EmailTemplates;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.*;
@@ -81,6 +83,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(applicationFormDto.getStatus());
 
         Application savedApplication = applicationRepository.save(application);
+        sendSubmissionEmail(application);
         return applicationMapper.toDto(savedApplication);
     }
 
@@ -111,6 +114,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         application.setStatus(status);
         Application savedApplication = applicationRepository.save(application);
+        sendSubmissionEmail(application);
         return applicationMapper.toDto(savedApplication);
     }
 
@@ -236,12 +240,39 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Car selectedCar = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
                 existingApplication.setCar(selectedCar);
                 applicationRepository.save(existingApplication);
+                sendSubmissionEmail(existingApplication);
                 return applicationMapper.toDto(existingApplication);
             } else {
                 throw new ApplicationNotDraftException("Cannot update application as status is not DRAFT");
             }
         } else {
             throw new ApplicationNotFoundException("Application not found with ID: " + applicationFormDto.getId());
+        }
+    }
+
+    private void sendSubmissionEmail(Application application) {
+        if (application.getStatus().equals(ApplicationStatus.DRAFT))
+            return;
+
+        User user = application.getUser();
+        switch (application.getStatus()) {
+            case ApplicationStatus.PENDING:
+                EmailService.sendEmail("Form Submitted", String.format(EmailTemplates.FORM_ADDED, user.getName(), "CarLess Team"), user.getEmail());
+                EmailService.sendEmail("Form Assigned for Review", EmailTemplates.FORM_AWAITING_REVIEW, null);
+                break;
+            case ApplicationStatus.REVIEW_APPROVED:
+                EmailService.sendEmail("Form Reviewed", String.format(EmailTemplates.FORM_REVIEWED, user.getName(), "CarLess Team"), user.getEmail());
+                EmailService.sendEmail("Form Assigned for Approval", EmailTemplates.FORM_AWAITING_APPROVAL, null);
+                break;
+            case ApplicationStatus.REVIEW_DECLINED:
+            case ApplicationStatus.DECLINED:
+                EmailService.sendEmail("Form Declined", String.format(EmailTemplates.FORM_DECLINED, user.getName(), "CarLess Team"), user.getEmail());
+                break;
+            case ApplicationStatus.APPROVED:
+                EmailService.sendEmail("Form Approved", String.format(EmailTemplates.FORM_APPROVED, user.getName(), "CarLess Team"), user.getEmail());
+                break;
+            default:
+                break;
         }
     }
 
