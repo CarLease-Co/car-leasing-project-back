@@ -1,5 +1,7 @@
 package com.carlease.project.user;
 
+import com.carlease.project.email.EmailService;
+import com.carlease.project.email.EmailTemplates;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.IncorrectPasswordException;
 import com.carlease.project.exceptions.UserException;
@@ -60,6 +62,8 @@ public class UserServiceImpl implements UserService {
 
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
+
+        EmailService.sendEmail("Welcome to CarLess!", String.format(EmailTemplates.NEW_USER, user.getName(), "CarLess", "CarLess Team"), user.getEmail());
 
         return userRepository.save(user);
     }
