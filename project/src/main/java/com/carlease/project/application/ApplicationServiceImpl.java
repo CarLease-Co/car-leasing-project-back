@@ -3,6 +3,8 @@ package com.carlease.project.application;
 import com.carlease.project.autosuggestor.*;
 import com.carlease.project.car.Car;
 import com.carlease.project.car.CarRepository;
+import com.carlease.project.email.EmailService;
+import com.carlease.project.email.EmailTemplates;
 import com.carlease.project.enums.ApplicationStatus;
 import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.*;
@@ -12,11 +14,15 @@ import com.carlease.project.interestrate.InterestRateMapper;
 import com.carlease.project.interestrate.InterestRateService;
 import com.carlease.project.user.User;
 import com.carlease.project.user.UserRepository;
+import com.carlease.project.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static com.carlease.project.user.UserServiceImpl.validateUserRole;
 
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
@@ -60,13 +66,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto create(ApplicationFormDto applicationFormDto) throws UserNotFoundException {
+    public ApplicationFormDto create(ApplicationFormDto applicationFormDto, long userId, UserRole role) throws UserNotFoundException, UserException {
+        validateUserRole(userRepository, userId, role);
         Application application = applicationMapper.toEntity(applicationFormDto);
-
         Car car = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
-
         User user = userRepository.findById(applicationFormDto.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(applicationFormDto.getUserId()));
+
+        if (!(role.equals(UserRole.APPLICANT))) {
+            throw new UserException("Don't have permission to create application");
+        }
 
         application.setCar(car);
         application.setUser(user);
@@ -74,15 +83,51 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(applicationFormDto.getStatus());
 
         Application savedApplication = applicationRepository.save(application);
+        sendSubmissionEmail(application);
         return applicationMapper.toDto(savedApplication);
     }
 
     @Override
-    public ApplicationFormDto updateStatus(long id, ApplicationStatus status) throws ApplicationNotFoundException {
-        Application application = applicationRepository.findById(id).orElseThrow(() -> new ApplicationNotFoundException("id"));
+    public ApplicationFormDto updateStatus(long applicationId, long userId, ApplicationStatus status, UserRole role) throws ApplicationNotFoundException, UserException, UserNotFoundException {
+        validateUserRole(userRepository,userId, role);
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new ApplicationNotFoundException("id"));
+
+        switch (role) {
+            case APPLICANT:
+                if (!isValidApplicantStatus(application.getStatus() ,status)) {
+                    throw new UserException("Applicant cannot update status to " + status);
+                }
+                break;
+            case REVIEWER:
+                if (!isValidReviewerStatus(application.getStatus(), status)) {
+                    throw new UserException("Reviewer cannot update status to " + status);
+                }
+                break;
+            case APPROVER:
+                if (!isValidApproverStatus(application.getStatus(), status)){
+                    throw new UserException("Approver cannot update status to " + status);
+                }
+                break;
+            default:
+                throw new UserException("Unsupported user role: " + role);
+        }
+
         application.setStatus(status);
         Application savedApplication = applicationRepository.save(application);
+        sendSubmissionEmail(application);
         return applicationMapper.toDto(savedApplication);
+    }
+
+    private boolean isValidApplicantStatus(ApplicationStatus currentStatus ,ApplicationStatus newStatus) {
+        return Objects.equals(currentStatus, ApplicationStatus.DRAFT) && Objects.equals(newStatus, ApplicationStatus.PENDING);
+    }
+
+    private boolean isValidReviewerStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return Objects.equals(currentStatus, ApplicationStatus.PENDING) && ((Objects.equals(newStatus, ApplicationStatus.REVIEW_APPROVED) || (Objects.equals(newStatus, ApplicationStatus.REVIEW_DECLINED))));
+    }
+
+    private boolean isValidApproverStatus(ApplicationStatus currentStatus, ApplicationStatus newStatus) {
+        return ((Objects.equals(currentStatus, ApplicationStatus.REVIEW_DECLINED)) || (Objects.equals(currentStatus, ApplicationStatus.REVIEW_APPROVED))) && ((Objects.equals(newStatus, ApplicationStatus.APPROVED)) || (Objects.equals(newStatus, ApplicationStatus.DECLINED)) || (Objects.equals(newStatus, ApplicationStatus.PENDING)));
     }
 
     @Override
@@ -110,8 +155,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException {
-        validateUserRole(id, role);
+    public List<ApplicationFormDto> getApplicationsByUser(long id, UserRole role) throws UserException, UserNotFoundException {
+        validateUserRole(userRepository, id, role);
 
         return switch (role) {
             case APPLICANT -> findAllByUserId(id);
@@ -122,23 +167,19 @@ public class ApplicationServiceImpl implements ApplicationService {
         };
     }
 
-    private void validateUserRole(long id, UserRole role) throws UserException {
-        Optional<User> userOptional = userRepository.findById(id);
-        User user = userOptional.get();
 
-        if (!user.getRole().equals(role)) {
-            throw new UserException("User role does not match the provided role");
-        }
-    }
 
-    public void evaluation(ApplicationFormDto applicationDto) {
+    public void evaluation(ApplicationFormDto applicationDto) throws AutosuggestorNotFoundException {
 
         InterestRateDTO interestRateDTO = interestRateService.findAll().getFirst();
         InterestRate interestRate = interestRateMapper.toEntity(interestRateDTO);
 
         CarPrice price = autosuggestorServiceImpl.calculateAvgCarPriceRange(autosuggestorServiceImpl.calculateAverageCarPriceDependingOnYear(applicationDto));
         if (ApplicationStatus.PENDING.equals(applicationDto.getStatus())) {
-            autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
+            AutosuggestorDto existingAutosuggestion = findAutosuggestorByApplicationId(applicationDto.getId());
+            if (existingAutosuggestion == null) {
+                autosuggestorServiceImpl.autosuggest(applicationDto, price, interestRate);
+            }
         }
     }
 
@@ -153,8 +194,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public boolean deleteById(long applicationId, long userId, UserRole role) throws UserException {
-        validateUserRole(userId, role);
+    public boolean deleteById(long applicationId, long userId, UserRole role) throws UserException, UserNotFoundException {
+        validateUserRole(userRepository, userId, role);
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
 
@@ -172,8 +213,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationFormDto update(long applicationId, ApplicationFormDto applicationFormDto, long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException {
-        validateUserRole(userId, role);
+    public ApplicationFormDto update(long applicationId, ApplicationFormDto applicationFormDto, long userId, UserRole role) throws ApplicationNotFoundException, ApplicationNotDraftException, UserException, UserNotFoundException {
+        validateUserRole(userRepository, userId, role);
 
         Optional<Application> optionalApplication = applicationRepository.findById(applicationId);
 
@@ -199,12 +240,39 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Car selectedCar = carRepository.findByMakeAndModel(applicationFormDto.getCarMake(), applicationFormDto.getCarModel());
                 existingApplication.setCar(selectedCar);
                 applicationRepository.save(existingApplication);
+                sendSubmissionEmail(existingApplication);
                 return applicationMapper.toDto(existingApplication);
             } else {
                 throw new ApplicationNotDraftException("Cannot update application as status is not DRAFT");
             }
         } else {
             throw new ApplicationNotFoundException("Application not found with ID: " + applicationFormDto.getId());
+        }
+    }
+
+    private void sendSubmissionEmail(Application application) {
+        if (application.getStatus().equals(ApplicationStatus.DRAFT))
+            return;
+
+        User user = application.getUser();
+        switch (application.getStatus()) {
+            case ApplicationStatus.PENDING:
+                EmailService.sendEmail("Form Submitted", String.format(EmailTemplates.FORM_ADDED, user.getName(), "CarLess Team"), user.getEmail());
+                EmailService.sendEmail("Form Assigned for Review", EmailTemplates.FORM_AWAITING_REVIEW, null);
+                break;
+            case ApplicationStatus.REVIEW_APPROVED:
+                EmailService.sendEmail("Form Reviewed", String.format(EmailTemplates.FORM_REVIEWED, user.getName(), "CarLess Team"), user.getEmail());
+                EmailService.sendEmail("Form Assigned for Approval", EmailTemplates.FORM_AWAITING_APPROVAL, null);
+                break;
+            case ApplicationStatus.REVIEW_DECLINED:
+            case ApplicationStatus.DECLINED:
+                EmailService.sendEmail("Form Declined", String.format(EmailTemplates.FORM_DECLINED, user.getName(), "CarLess Team"), user.getEmail());
+                break;
+            case ApplicationStatus.APPROVED:
+                EmailService.sendEmail("Form Approved", String.format(EmailTemplates.FORM_APPROVED, user.getName(), "CarLess Team"), user.getEmail());
+                break;
+            default:
+                break;
         }
     }
 

@@ -1,6 +1,8 @@
 package com.carlease.project.user;
 
+import com.carlease.project.enums.UserRole;
 import com.carlease.project.exceptions.IncorrectPasswordException;
+import com.carlease.project.exceptions.UserException;
 import com.carlease.project.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +22,8 @@ public class UserController {
     }
 
     @GetMapping(produces = "application/json")
-    ResponseEntity<List<User>> getUsers() {
-        List<User> list = userService.findAll();
+    ResponseEntity<List<User>> getUsers(@RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserException, UserNotFoundException {
+        List<User> list = userService.findAll(userId, role);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -32,10 +34,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/login")
-    ResponseEntity<?> login(@RequestParam("username") String username, @RequestParam("password") String password) {
+    @PostMapping("/login")
+    ResponseEntity<?> login(@RequestBody UserCredentials user) {
         try {
-            UserSession userSession = userService.login(username, password);
+            UserSession userSession = userService.login(user.getUsername(), user.getPassword());
             return new ResponseEntity<>(userSession, HttpStatus.OK);
         } catch (IncorrectPasswordException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
@@ -43,8 +45,8 @@ public class UserController {
     }
 
     @PostMapping
-    ResponseEntity<User> createUser(@RequestBody User user) {
-        User newUser = userService.createUser(user);
+    ResponseEntity<User> createUser(@RequestBody User user, @RequestHeader("userId") long userId, @RequestHeader("role") UserRole role) throws UserNotFoundException, UserException {
+        User newUser = userService.createUser(user, userId, role);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 }
